@@ -69,7 +69,7 @@ public interface GJVisitor<R,A> {
     * f4 -> ( MethodDeclaration() )*
     * f5 -> "}"
     */
-   public R visit(ClassDeclaration n, A argu);
+   public R visit(ClassDeclaration n, A argu) throws Exception;
 
    /**
     * f0 -> "class"
@@ -81,14 +81,14 @@ public interface GJVisitor<R,A> {
     * f6 -> ( MethodDeclaration() )*
     * f7 -> "}"
     */
-   public R visit(ClassExtendsDeclaration n, A argu);
+   public R visit(ClassExtendsDeclaration n, A argu) throws Exception;
 
    /**
     * f0 -> Type()
     * f1 -> Identifier()
     * f2 -> ";"
     */
-   public R visit(VarDeclaration n, A argu);
+   public R visit(VarDeclaration n, A argu) throws Exception;
 
    /**
     * f0 -> "public"
@@ -105,7 +105,7 @@ public interface GJVisitor<R,A> {
     * f11 -> ";"
     * f12 -> "}"
     */
-   public R visit(MethodDeclaration n, A argu);
+   public R visit(MethodDeclaration n, A argu) throws Exception;
 
    /**
     * f0 -> FormalParameter()
@@ -117,7 +117,7 @@ public interface GJVisitor<R,A> {
     * f0 -> Type()
     * f1 -> Identifier()
     */
-   public R visit(FormalParameter n, A argu);
+   public R visit(FormalParameter n, A argu) throws Exception;
 
    /**
     * f0 -> ( FormalParameterTerm() )*
