@@ -67,9 +67,11 @@ class MethodTable{
   }
 
   public void getl(){
-    for (String i : local_table.keySet()) {
-        System.out.println("local_var: " + i + " type: " + local_table.get(i));
+    if (local_table != null){
+      for (String i : local_table.keySet()) {
+          System.out.println("local_var: " + i + " type: " + local_table.get(i));
       }
+    }
   }
 
 
@@ -79,7 +81,7 @@ class ClassTable{
 
   public String mother; 
   public LinkedHashMap<String, String> field_table ;
-  public LinkedHashMap<String, Tuple<String,MethodTable>> method_table ;
+  public LinkedHashMap<String, Tuple<String,MethodTable>> methodId_table ;
   
   //public ClassTable(){
   //  field_table = new LinkedHashMap<String, String>();
@@ -97,11 +99,11 @@ class ClassTable{
 
   public void meth_insert(String id, String ret_type  ){
     
-    if (method_table == null){
-      method_table = new LinkedHashMap<String, Tuple<String,MethodTable>>();
+    if (methodId_table == null){
+      methodId_table = new LinkedHashMap<String, Tuple<String,MethodTable>>();
     }
     
-    method_table.put(id, new Tuple(ret_type,new MethodTable() ) );
+    methodId_table.put(id, new Tuple(ret_type,new MethodTable() ) );
     
     //Tuple<String, MethodTable> bobs = method_table.get(id);
 
@@ -122,31 +124,35 @@ class ClassTable{
   public MethodTable get_last_meth(){
 
     String lKeyLast = null ;
-    for(String key : method_table.keySet()){
+    for(String key : methodId_table.keySet()){
       lKeyLast = key;
     }
 
-    Tuple<String, MethodTable> temp = method_table.get(lKeyLast);
+    Tuple<String, MethodTable> temp = methodId_table.get(lKeyLast);
 
     return temp.y;
   }
 
 
   public void get(){
-    for (String i : field_table.keySet()) {
-        System.out.println("field_name: " + i + " type: " + field_table.get(i));
-      }
+    if (field_table != null){
+      for (String i : field_table.keySet()) {
+          System.out.println("field_name: " + i + " type: " + field_table.get(i));
+        }
+    }
   }
 
   public void get2(){
-    for (String i : method_table.keySet()) {
-        System.out.print("method_name: " + i + " return_type: ");
-        Tuple<String, MethodTable> bobs =  method_table.get(i);
-        
-        System.out.println(bobs.x);
+    if (methodId_table != null){
+      for (String i : methodId_table.keySet()) {
+          System.out.print("method_name: " + i + " return_type: ");
+          Tuple<String, MethodTable> bobs =  methodId_table.get(i);
+          
+          System.out.println(bobs.x);
 
-        bobs.y.getp();
-        bobs.y.getl();
+          bobs.y.getp();
+          bobs.y.getl();
+      }
     }
   }
 
@@ -156,24 +162,24 @@ class ClassTable{
 public class SymbolTable {
 
 
-  LinkedHashMap<String, ClassTable> sym_table;
+  LinkedHashMap<String, ClassTable> classId_table;
 
   public void add_class(String id){
     
-    if (sym_table == null){
-      sym_table = new LinkedHashMap<String, ClassTable>();
+    if (classId_table == null){
+      classId_table = new LinkedHashMap<String, ClassTable>();
     }
-    sym_table.put(id, new ClassTable());
+    classId_table.put(id, new ClassTable());
   }
 
   public ClassTable get_last(){
 
     String lKeyLast = null ;
-    for(String key : sym_table.keySet()){
+    for(String key : classId_table.keySet()){
       lKeyLast = key;
     }
 
-    ClassTable temp = sym_table.get(lKeyLast);
+    ClassTable temp = classId_table.get(lKeyLast);
 
     return temp;
 
@@ -181,15 +187,15 @@ public class SymbolTable {
 
   public ClassTable get(String id){
 
-    ClassTable temp = sym_table.get(id);
+    ClassTable temp = classId_table.get(id);
     return temp;
     //possible return types.
 
   }
 
   public void print_all(){
-    for (String i : sym_table.keySet()) {
-      System.out.println("local_var: " + i + " type: " + sym_table.get(i));
+    for (String i : classId_table.keySet()) {
+      System.out.println("local_var: " + i + " type: " + classId_table.get(i));
     }
   }
 

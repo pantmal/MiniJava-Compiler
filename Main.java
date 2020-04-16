@@ -3,7 +3,7 @@ import visitor.*;
 import java.io.*;
 
 public class Main {
-    public static void main (String [] args){
+    public static void main (String [] args) throws Exception {
     if(args.length != 1){
         System.err.println("Usage: java Main <inputFile>");
         System.exit(1);
@@ -16,21 +16,25 @@ public class Main {
 	Goal root = parser.Goal();        
 	
     FirstVisitor eval = new FirstVisitor();
-    root.accept(eval, null);
+    //try{
+        root.accept(eval, null);
+   // }catch(Exception ouch){
+   //     System.out.println("We had an error! ");    
+   // }
     
     //eval.visitor_sym.print_all();
 
     for (int counter = 0; counter < eval.idList.size(); counter++) { 		      
         String id_check = eval.idList.get(counter);
-        if( !(eval.visitor_sym.sym_table.containsKey(id_check)) ){
+        if( !(eval.visitor_sym.classId_table.containsKey(id_check)) ){
 
-            System.out.println("Semactic error! " + id_check);    
+            throw new Exception("Semantic Error!");
       
       }
     } 
 
-    for (String i : eval.visitor_sym.sym_table.keySet()) {
-        ClassTable current = eval.visitor_sym.sym_table.get(i);
+    for (String i : eval.visitor_sym.classId_table.keySet()) {
+        ClassTable current = eval.visitor_sym.classId_table.get(i);
         
         System.out.print(i);
         if (current.mother!=null){
@@ -44,7 +48,8 @@ public class Main {
 
     //ClassTable current = eval.visitor_sym.get_last();
 
-
+    SecondVisitor eval2 = new SecondVisitor(eval.visitor_sym);
+    root.accept(eval2, null);
     
 
     }

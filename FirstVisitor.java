@@ -11,6 +11,69 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
     public FirstVisitor(){
           idList = new ArrayList<String>();
     }
+
+    /**
+    * f0 -> "class"
+    * f1 -> Identifier()
+    * f2 -> "{"
+    * f3 -> "public"
+    * f4 -> "static"
+    * f5 -> "void"
+    * f6 -> "main"
+    * f7 -> "("
+    * f8 -> "String"
+    * f9 -> "["
+    * f10 -> "]"
+    * f11 -> Identifier()
+    * f12 -> ")"
+    * f13 -> "{"
+    * f14 -> ( VarDeclaration() )*
+    * f15 -> ( Statement() )*
+    * f16 -> "}"
+    * f17 -> "}"
+    */
+   public String visit(MainClass n, String argu) throws Exception {
+      String _ret=null;
+      n.f0.accept(this, argu);
+
+      if (this.visitor_sym == null){
+            this.visitor_sym = new SymbolTable();
+      }
+
+      String main_class = n.f1.accept(this, argu);
+
+      if( visitor_sym.classId_table != null ){
+
+            if( visitor_sym.classId_table.containsKey(main_class) ){
+
+                  throw new Exception("Semactic error!");      
+            
+            }
+      }
+
+
+      visitor_sym.add_class(main_class);
+
+      //Add some garbage code here so the local variables don't end up in fields
+
+      n.f2.accept(this, argu);
+      n.f3.accept(this, argu);
+      n.f4.accept(this, argu);
+      n.f5.accept(this, argu);
+      n.f6.accept(this, argu);
+      n.f7.accept(this, argu);
+      n.f8.accept(this, argu);
+      n.f9.accept(this, argu);
+      n.f10.accept(this, argu);
+      n.f11.accept(this, argu);
+      n.f12.accept(this, argu);
+      n.f13.accept(this, argu);
+      n.f14.accept(this, argu);
+      n.f15.accept(this, argu);
+      n.f16.accept(this, argu);
+      n.f17.accept(this, argu);
+      return _ret;
+   }
     
      /**
     * f0 -> "class"
@@ -34,9 +97,9 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       n.f0.accept(this, argu);
       class_id = n.f1.accept(this, argu);
 
-      if( visitor_sym.sym_table != null ){
+      if( visitor_sym.classId_table != null ){
 
-            if( visitor_sym.sym_table.containsKey(class_id) ){
+            if( visitor_sym.classId_table.containsKey(class_id) ){
 
                   throw new Exception("Semactic error!");      
             
@@ -79,7 +142,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       n.f0.accept(this, argu);
       class_id = n.f1.accept(this, argu);
 
-      if( visitor_sym.sym_table.containsKey(class_id) ){
+      if( visitor_sym.classId_table.containsKey(class_id) ){
 
             throw new Exception("Semactic error!");      
       
@@ -98,7 +161,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
             throw new Exception("Semactic error!");
       }
 
-      if( !(visitor_sym.sym_table.containsKey(mother)) ){
+      if( !(visitor_sym.classId_table.containsKey(mother)) ){
 
             throw new Exception("Semactic error!");      
       
@@ -147,9 +210,9 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
 	System.out.println(Type + " " + id);
       n.f2.accept(this, argu);
 
-      if (current.field_table == null && current.method_table == null ){
+      if (current.field_table == null && current.methodId_table == null ){
             current.f_insert(id, Type);     
-      }else if(current.method_table == null ){
+      }else if(current.methodId_table == null ){
             if( current.field_table.containsKey(id) ){
                 
                 throw new Exception("Semactic error!");
@@ -157,9 +220,16 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
 
             current.f_insert(id, Type);     
 
-      }else if(current.method_table != null ){
+      }else if(current.methodId_table != null ){
 
             MethodTable curr_meth = current.get_last_meth();
+
+            if (curr_meth.param_table != null){
+                  if( curr_meth.param_table.containsKey(id) ){
+                      
+                        throw new Exception("Semactic error!");
+                  }
+            }
 
             if (curr_meth.local_table != null){
                   if( curr_meth.local_table.containsKey(id) ){
@@ -209,9 +279,9 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       
       if(current.mother != null){
             ClassTable mother = visitor_sym.get(current.mother);
-            if( mother.method_table.containsKey(id) ){
+            if( mother.methodId_table.containsKey(id) ){
 
-                  Tuple<String, MethodTable> tupe =  mother.method_table.get(id);
+                  Tuple<String, MethodTable> tupe =  mother.methodId_table.get(id);
                   if(tupe.x != ret_Type ){
                         throw new Exception("Semactic error!");      
                   }
@@ -219,8 +289,8 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
             }
       }
 
-      if (current.method_table != null){
-            if( current.method_table.containsKey(id) ){
+      if (current.methodId_table != null){
+            if( current.methodId_table.containsKey(id) ){
                 
                   throw new Exception("Semactic error!");
             }
@@ -233,12 +303,12 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
 
       if(current.mother != null){
             ClassTable mother = visitor_sym.get(current.mother);
-            if( mother.method_table.containsKey(id) ){
+            if( mother.methodId_table.containsKey(id) ){
 
                   //elenxos oti name einai koino
 
-                  Tuple<String, MethodTable> mother_tupe =  mother.method_table.get(id);
-                  Tuple<String, MethodTable> curr_tupe = current.method_table.get(id);
+                  Tuple<String, MethodTable> mother_tupe =  mother.methodId_table.get(id);
+                  Tuple<String, MethodTable> curr_tupe = current.methodId_table.get(id);
                   if( mother_tupe.y.param_table != null && curr_tupe.y.param_table == null){
                         throw new Exception("Semactic error!");      
                   }
