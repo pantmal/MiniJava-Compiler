@@ -251,35 +251,35 @@ public interface GJVisitor<R,A> {
     * f1 -> "&&"
     * f2 -> Clause()
     */
-   public R visit(AndExpression n, A argu);
+   public R visit(AndExpression n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
     * f1 -> "<"
     * f2 -> PrimaryExpression()
     */
-   public R visit(CompareExpression n, A argu);
+   public R visit(CompareExpression n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
     * f1 -> "+"
     * f2 -> PrimaryExpression()
     */
-   public R visit(PlusExpression n, A argu);
+   public R visit(PlusExpression n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
     * f1 -> "-"
     * f2 -> PrimaryExpression()
     */
-   public R visit(MinusExpression n, A argu);
+   public R visit(MinusExpression n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
     * f1 -> "*"
     * f2 -> PrimaryExpression()
     */
-   public R visit(TimesExpression n, A argu);
+   public R visit(TimesExpression n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
@@ -287,14 +287,14 @@ public interface GJVisitor<R,A> {
     * f2 -> PrimaryExpression()
     * f3 -> "]"
     */
-   public R visit(ArrayLookup n, A argu);
+   public R visit(ArrayLookup n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
     * f1 -> "."
     * f2 -> "length"
     */
-   public R visit(ArrayLength n, A argu);
+   public R visit(ArrayLength n, A argu) throws Exception;
 
    /**
     * f0 -> PrimaryExpression()
@@ -359,7 +359,7 @@ public interface GJVisitor<R,A> {
    /**
     * f0 -> <IDENTIFIER>
     */
-   public R visit(Identifier n, A argu);
+   public R visit(Identifier n, A argu) throws Exception;
 
    /**
     * f0 -> "this"

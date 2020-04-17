@@ -305,7 +305,6 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
             ClassTable mother = visitor_sym.get(current.mother);
             if( mother.methodId_table.containsKey(id) ){
 
-                  //elenxos oti name einai koino
 
                   Tuple<String, MethodTable> mother_tupe =  mother.methodId_table.get(id);
                   Tuple<String, MethodTable> curr_tupe = current.methodId_table.get(id);

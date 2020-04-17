@@ -5,8 +5,27 @@ class Factorial{
 }
 
 
-
 class Fac {
+    int x;
+    boolean y;
+    int[] int_arr;
+    Fac b;
+    public int ComputeFac(int num, int f){
+	int other_num;
+        int num_aux ;
+	int[] local_arr;
+	boolean checker;
+        b = new Fac();
+	num_aux = local_arr[0];
+	other_num = local_arr.length;
+        return num_aux ;
+    }
+
+
+
+}
+
+/*class Fac {
     int x;
     boolean y;
     int[] int_arr;
@@ -33,7 +52,7 @@ class Fac2 extends Fac{
 	num_loc = 1;
 	return num_loc ;
     }
-}
+}*/
 
 
 
