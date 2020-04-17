@@ -549,7 +549,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f4 -> ( ExpressionList() )?
     * f5 -> ")"
     */
-   public R visit(MessageSend n, A argu) {
+   public R visit(MessageSend n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -564,7 +564,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> Expression()
     * f1 -> ExpressionTail()
     */
-   public R visit(ExpressionList n, A argu) {
+   public R visit(ExpressionList n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -574,7 +574,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
    /**
     * f0 -> ( ExpressionTerm() )*
     */
-   public R visit(ExpressionTail n, A argu) {
+   public R visit(ExpressionTail n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -582,7 +582,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> ","
     * f1 -> Expression()
     */
-   public R visit(ExpressionTerm n, A argu) {
+   public R visit(ExpressionTerm n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -694,7 +694,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f2 -> "("
     * f3 -> ")"
     */
-   public R visit(AllocationExpression n, A argu) {
+   public R visit(AllocationExpression n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);

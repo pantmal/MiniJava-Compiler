@@ -378,6 +378,77 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       return "int";
    }
 
+      /**
+    * f0 -> PrimaryExpression()
+    * f1 -> "."
+    * f2 -> Identifier()
+    * f3 -> "("
+    * f4 -> ( ExpressionList() )?
+    * f5 -> ")"
+    */
+    public String visit(MessageSend n, String argu) throws Exception {
+      String _ret=null;
+
+      String obj_type = n.f0.accept(this, argu);
+
+      if (!(this.visitor_sym.classId_table.containsKey(obj_type)) ){
+        throw new Exception("Type error!");
+      }
+
+      n.f1.accept(this, argu);
+      this.in_assign = false; //NOT RESET TO TRUE?
+      String meth_name = n.f2.accept(this, argu);
+
+      ClassTable temp = visitor_sym.classId_table.get(obj_type);
+
+      if (!(temp.methodId_table.containsKey(meth_name)) ){
+        throw new Exception("Type error!");
+      }
+      
+      Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
+
+      String ret_type = tupe.x;
+
+      n.f3.accept(this, argu);
+      String expr_list = n.f4.accept(this, argu);
+      n.f5.accept(this, argu);
+      
+      if ( ( tupe.y.param_table != null && expr_list == null ) || ( tupe.y.param_table == null && expr_list != null )  ){
+        throw new Exception("Type error!");
+      }
+      
+      return ret_type;
+   }
+
+   /**
+    * f0 -> Expression()
+    * f1 -> ExpressionTail()
+    */
+   public String visit(ExpressionList n, String argu) throws Exception {
+    String _ret=null;
+      n.f0.accept(this, argu);
+      n.f1.accept(this, argu);
+      return "_ret";
+   }
+
+   /**
+    * f0 -> ( ExpressionTerm() )*
+    */
+   public String visit(ExpressionTail n, String argu) throws Exception {
+      return n.f0.accept(this, argu);
+   }
+
+   /**
+    * f0 -> ","
+    * f1 -> Expression()
+    */
+   public String visit(ExpressionTerm n, String argu) throws Exception {
+      String _ret=null;
+      n.f0.accept(this, argu);
+      n.f1.accept(this, argu);
+      return _ret;
+   }
+
 
 
    /**
@@ -412,11 +483,15 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     * f2 -> "("
     * f3 -> ")"
     */
-    public String visit(AllocationExpression n, String argu) {
+    public String visit(AllocationExpression n, String argu) throws Exception{
       String _ret=null;
       n.f0.accept(this, argu);
       this.in_assign = false; //NOT RESET TO TRUE?
       String Type = n.f1.accept(this, argu);
+      if (!(this.visitor_sym.classId_table.containsKey(Type)) ){
+        throw new Exception("Type error!");
+      }
+
       n.f2.accept(this, argu);
       n.f3.accept(this, argu);
       return Type;
