@@ -324,7 +324,6 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
                         for (String i : curr_tupe.y.param_table.keySet()) {
                               String curr_check = curr_tupe.y.param_table.get(i);
                               
-
                               String check = mother_tupe.y.getKey(counter);
                               String mother_type = mother_tupe.y.param_table.get(check);
 

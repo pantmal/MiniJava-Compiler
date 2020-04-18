@@ -366,7 +366,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f5 -> Expression()
     * f6 -> ";"
     */
-   public R visit(ArrayAssignmentStatement n, A argu) {
+   public R visit(ArrayAssignmentStatement n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -387,7 +387,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f5 -> "else"
     * f6 -> Statement()
     */
-   public R visit(IfStatement n, A argu) {
+   public R visit(IfStatement n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -406,7 +406,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f3 -> ")"
     * f4 -> Statement()
     */
-   public R visit(WhileStatement n, A argu) {
+   public R visit(WhileStatement n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -423,7 +423,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f3 -> ")"
     * f4 -> ";"
     */
-   public R visit(PrintStatement n, A argu) {
+   public R visit(PrintStatement n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -661,7 +661,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f3 -> Expression()
     * f4 -> "]"
     */
-   public R visit(BooleanArrayAllocationExpression n, A argu) {
+   public R visit(BooleanArrayAllocationExpression n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -678,7 +678,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f3 -> Expression()
     * f4 -> "]"
     */
-   public R visit(IntegerArrayAllocationExpression n, A argu) {
+   public R visit(IntegerArrayAllocationExpression n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
