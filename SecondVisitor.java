@@ -182,91 +182,14 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
   public String visit(AssignmentStatement n, String argu) throws Exception {
     
     String _ret=null;
-    this.in_assign = false;
-    String left_id = n.f0.accept(this, argu);
+    this.in_assign = true;
+    String l_Type = n.f0.accept(this, argu);
 
     ClassTable temp = visitor_sym.classId_table.get(curr_class);
     
     Tuple<String, MethodTable> tupe = temp.methodId_table.get(curr_meth);
 
     //System.out.println("ANYTHING " + curr_meth);
-
-    boolean notin_param = false;
-    boolean notin_local = false;
-    boolean notin_field = false;
-
-    if ( tupe.y.param_table != null  ){
-     if( !(tupe.y.param_table.containsKey(left_id) ) ){
-        notin_param = true;
-      }
-    }
-
-    if ( tupe.y.local_table != null  ){
-      if( !(tupe.y.local_table.containsKey(left_id) ) ){
-          notin_local = true;
-       }
-     }
-
-     if ( temp.field_table != null  ){
-      if( !(temp.field_table.containsKey(left_id) ) ){
-          notin_field = true;
-       }
-     }
-
-     if ( notin_field == true && notin_param == true && notin_local == true ){ //WE NEED CASES
-      throw new Exception("Type error!");
-     }
-
-    /*if ( !(tupe.y.local_table.containsKey(left_id) )  && !(tupe.y.param_table.containsKey(left_id))
-          && !(temp.field_table.containsKey(left_id) ) ){  //WATCH OUT. NOT FOR FIELD OF MOTHER CLASS
-        
-        
-            throw new Exception("Type error!");
-    } */
-  
-
-    String l_Type = null;
-
-    if ( tupe.y.param_table != null  ){
-      if( (tupe.y.param_table.containsKey(left_id) ) ){
-        l_Type = tupe.y.param_table.get(left_id);
-       }
-     }
-
-     if ( tupe.y.local_table != null  ){
-      if( (tupe.y.local_table.containsKey(left_id) ) ){
-        l_Type = tupe.y.local_table.get(left_id);
-       }
-     }
-
-     if ( temp.field_table != null  ){
-      if( (temp.field_table.containsKey(left_id) ) ){
-        l_Type = temp.field_table.get(left_id);
-       }
-     }
-
-    /*if (tupe.y.local_table != null && tupe.y.param_table != null ) {
-    if ( (tupe.y.local_table.containsKey(left_id) ) || (tupe.y.param_table.containsKey(left_id) ) ){
-      if(  (tupe.y.local_table.containsKey(left_id) ) ){
-        l_Type = tupe.y.local_table.get(left_id);
-          System.out.println("ANYTHING ass_visit l " + l_Type);
-      }
-      if(  (tupe.y.param_table.containsKey(left_id) ) ){
-          l_Type = tupe.y.param_table.get(left_id);
-          System.out.println("ANYTHING ass_visit l " + l_Type);
-      }
-      
-    }else{
-      l_Type = temp.field_table.get(left_id);
-    }
-    
-  }
-
-    else{
-      l_Type = temp.field_table.get(left_id);
-    }*/
-
-
 
     n.f1.accept(this, argu);
 
@@ -789,72 +712,79 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
       String id = n.f0.accept(this, argu);
 
-      boolean notin_param = false;
-      boolean notin_local = false;
-      boolean notin_field = false;
-  
-      if ( tupe.y.param_table != null  ){
-       if( !(tupe.y.param_table.containsKey(id) ) ){
-          notin_param = true;
-        }
-      }
-  
-      if ( tupe.y.local_table != null  ){
-        if( !(tupe.y.local_table.containsKey(id) ) ){
-            notin_local = true;
-         }
-       }
-  
-       if ( temp.field_table != null  ){
-        if( !(temp.field_table.containsKey(id) ) ){
-            notin_field = true;
-         }
-       }
-       
-  
-       if ( notin_field == true && notin_param == true && notin_local == true ){ //WE NEED CASES
-        throw new Exception("Type error!");
-       }
-
-      /*if ( !(tupe.y.local_table.containsKey(id) ) && !(tupe.y.param_table.containsKey(id)) 
-           && !(temp.field_table.containsKey(id) ) ){  //WATCH OUT. NOT FOR FIELD OF MOTHER CLASS
-          throw new Exception("Type error!");
-      }*/
-
       String Type = null;
 
-      if ( tupe.y.param_table != null  ){
-        if( (tupe.y.param_table.containsKey(id) ) ){
-          Type = tupe.y.param_table.get(id);
-         }
-       }
-  
-       if ( tupe.y.local_table != null  ){
-        if( (tupe.y.local_table.containsKey(id) ) ){
-          Type = tupe.y.local_table.get(id);
-         }
-       }
-  
-       if ( temp.field_table != null  ){
-        if( (temp.field_table.containsKey(id) ) ){
-          Type = temp.field_table.get(id);
-         }
-       }
-
-      /*if ( (tupe.y.local_table.containsKey(id) ) || (tupe.y.param_table.containsKey(id) ) ){
-        if(  (tupe.y.local_table.containsKey(id) ) ){
-            Type = tupe.y.local_table.get(id);
-            //System.out.println("ANYTHING id_visit " + Type);
+      if ( tupe.y.param_table == null && tupe.y.local_table == null  ){
+        if ( temp.field_table != null  ){
+          if( temp.field_table.containsKey(id) ) {
+            Type = temp.field_table.get(id);
+            return Type;
+          }else{
+            throw new Exception("Type error!");
+          }
+        }else{
+          throw new Exception("Type error!");
         }
-        if ((tupe.y.param_table != null ) ){
-          if(  (tupe.y.param_table.containsKey(id) ) ){
-            Type = tupe.y.param_table.get(id);
-            //System.out.println("ANYTHING id_visit " + Type);
+      }
+
+      if ( tupe.y.param_table == null && tupe.y.local_table != null  ){
+        if ( tupe.y.local_table.containsKey(id)  ){
+          Type = tupe.y.local_table.get(id);
+          return Type;
+        }else{
+          if ( temp.field_table != null  ){
+            if( temp.field_table.containsKey(id) ) {
+              Type = temp.field_table.get(id);
+              return Type;
+            }else{
+              throw new Exception("Type error!");
+            }
+          }else{
+            throw new Exception("Type error!");
           }
         }
-      }else{
-        Type = temp.field_table.get(id);
-      }*/
+      }
+
+
+      if ( tupe.y.param_table != null && tupe.y.local_table == null  ){
+        if ( tupe.y.param_table.containsKey(id)  ){
+          Type = tupe.y.param_table.get(id);
+          return Type;
+        }else{
+          if ( temp.field_table != null  ){
+            if( temp.field_table.containsKey(id) ) {
+              Type = temp.field_table.get(id);
+              return Type;
+            }else{
+              throw new Exception("Type error!");
+            }
+          }else{
+            throw new Exception("Type error!");
+          }
+        }
+      }
+
+
+      if ( tupe.y.param_table != null && tupe.y.local_table != null  ){
+        if ( tupe.y.param_table.containsKey(id)  ){
+          Type = tupe.y.param_table.get(id);
+          return Type;
+        }else if ( tupe.y.local_table.containsKey(id) ){
+          Type = tupe.y.local_table.get(id);
+          return Type;
+        }else{
+          if ( temp.field_table != null  ){
+            if( temp.field_table.containsKey(id) ) {
+              Type = temp.field_table.get(id);
+              return Type;
+            }else{
+              throw new Exception("Type error!");
+            }
+          }else{
+            throw new Exception("Type error!");
+          }
+        }
+      }
 
       return Type;
 
