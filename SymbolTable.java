@@ -90,6 +90,45 @@ class ClassTable{
 
   //init functions here for each table
 
+  //public String meth_lookup(String meth_name, LinkedHashMap<String, ClassTable> classId_table ){
+
+    
+  //}
+
+  public String recurse_lookup(String id, LinkedHashMap<String, ClassTable> classId_table ){
+
+    String Type = null;
+    if( this.field_table != null  ){
+      if( this.field_table.containsKey(id) ) {
+        Type = this.field_table.get(id);
+        return Type;
+      }else{
+        if (this.mother != null ){
+          ClassTable mother_t = classId_table.get(this.mother);
+          Type = mother_t.recurse_lookup(id,classId_table);
+          if (Type == null){
+            return null;
+          }else{
+            return Type;
+          }
+        }
+        return null;
+      }
+    }else{
+      if (this.mother != null ){
+        ClassTable mother_t = classId_table.get(this.mother);
+        Type = mother_t.recurse_lookup(id,classId_table);
+        if (Type == null){
+          return null;   
+        }else{
+          return Type;
+        }
+      }
+      return null;
+    }
+
+}
+
   public void f_insert(String id, String type){
     if (field_table == null){
       field_table = new LinkedHashMap<String, String>();

@@ -553,10 +553,22 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
       ClassTable temp = visitor_sym.classId_table.get(obj_type);
 
-      if (!(temp.methodId_table.containsKey(meth_name)) ){
-        throw new Exception("Type error!");
+      if (temp.mother == null){
+        if (temp.methodId_table == null){
+          throw new Exception("Type error!");
+        }
+        if (!(temp.methodId_table.containsKey(meth_name)) ){
+          throw new Exception("Type error!");
+        }
+        
+        Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
+
+      }else{
+
+        //We need work here
+
       }
-      
+
       Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
 
       String ret_type = tupe.x;
@@ -729,9 +741,27 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
             Type = temp.field_table.get(id);
             return Type;
           }else{
+            if (temp.mother != null ){
+              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+              if (Type == null){
+                throw new Exception("Type error!");    
+              }else{
+                return Type;
+              }
+            }
             throw new Exception("Type error!");
           }
         }else{
+          if (temp.mother != null ){
+            ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+            Type = mother_t.recurse_lookup(id, visitor_sym.classId_table);
+            if (Type == null){
+              throw new Exception("Type error!");    
+            }else{
+              return Type;
+            }
+          }
           throw new Exception("Type error!");
         }
       }
@@ -746,9 +776,27 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
               Type = temp.field_table.get(id);
               return Type;
             }else{
+              if (temp.mother != null ){
+                ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                if (Type == null){
+                  throw new Exception("Type error!");    
+                }else{
+                  return Type;
+                }
+              }
               throw new Exception("Type error!");
             }
           }else{
+            if (temp.mother != null ){
+              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+              if (Type == null){
+                throw new Exception("Type error!");    
+              }else{
+                return Type;
+              }
+            }
             throw new Exception("Type error!");
           }
         }
@@ -765,9 +813,27 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
               Type = temp.field_table.get(id);
               return Type;
             }else{
+              if (temp.mother != null ){
+                ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                if (Type == null){
+                  throw new Exception("Type error!");    
+                }else{
+                  return Type;
+                }
+              }
               throw new Exception("Type error!");
             }
           }else{
+            if (temp.mother != null ){
+              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+              if (Type == null){
+                throw new Exception("Type error!");    
+              }else{
+                return Type;
+              }
+            }
             throw new Exception("Type error!");
           }
         }
@@ -787,9 +853,27 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
               Type = temp.field_table.get(id);
               return Type;
             }else{
+              if (temp.mother != null ){
+                ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                if (Type == null){
+                  throw new Exception("Type error!");    
+                }else{
+                  return Type;
+                }
+              }
               throw new Exception("Type error!");
             }
           }else{
+            if (temp.mother != null ){
+              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+              if (Type == null){
+                throw new Exception("Type error!");    
+              }else{
+                return Type;
+              }
+            }
             throw new Exception("Type error!");
           }
         }

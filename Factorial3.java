@@ -8,6 +8,7 @@ class Factorial{
 
 class Fac {
     int x;
+    int k;
     boolean y;
     int[] int_arr;
     Fac b;
@@ -21,7 +22,7 @@ class Fac {
     	return 1;
     }
 
-    public int ComputeFac(int num, int f){
+    public int ComputeFac(int f){
 	int other_num;
         int num_aux ;
 	int[] local_arr;
@@ -29,7 +30,7 @@ class Fac {
 	Fac c;      
         b = new Fac();
 	num_aux = local_arr[0];
-	other_num = new Fac().SomeFunc(f,c.SomeFunc(1,2,3),other_num);
+	other_num = new Fac().SomeFunc(num_aux,c.SomeFunc(1,2,3),other_num);
 	local_arr[0] = num_aux;
         return num_aux ;
     }
@@ -59,12 +60,11 @@ class Fac {
 
 class Fac2 extends Fac{
     //int y;
-    boolean[] bool_arr;
-    public int ComputeFac(int num, int g){
-        int num_loc ;
-	num_loc = 1;
-	num_loc = y;
-	return num_loc ;
+    //boolean[] bool_arr;
+    public int ComputeFac(int f){
+	int l;
+        l = k;
+	return k;
     }
 }
 
