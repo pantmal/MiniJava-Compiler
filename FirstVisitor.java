@@ -59,13 +59,41 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       n.f2.accept(this, argu);
       n.f3.accept(this, argu);
       n.f4.accept(this, argu);
-      n.f5.accept(this, argu);
-      n.f6.accept(this, argu);
+      
+      String ret_Type = n.f5.accept(this, argu);
+      String id = n.f6.accept(this, argu);
+
+      ClassTable current = visitor_sym.get_last();
+
+      if (current.methodId_table != null){
+            if( current.methodId_table.containsKey(id) ){
+                
+                  throw new Exception("Semactic error!");
+            }
+      }
+      
+      current.meth_insert(id, ret_Type);
+
+
       n.f7.accept(this, argu);
       n.f8.accept(this, argu);
       n.f9.accept(this, argu);
       n.f10.accept(this, argu);
-      n.f11.accept(this, argu);
+      
+      
+      String args = n.f11.accept(this, argu);
+
+      MethodTable curr_meth = current.get_last_meth();
+
+      if (curr_meth.param_table != null){
+            if( curr_meth.param_table.containsKey(args) ){
+                
+                  throw new Exception("Semactic error!");
+            }
+      }
+
+      curr_meth.p_insert(args, "String[]");
+
       n.f12.accept(this, argu);
       n.f13.accept(this, argu);
       n.f14.accept(this, argu);
@@ -414,7 +442,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
     *       | IntegerType()
     *       | Identifier()
     */
-    public String visit(Type n, String argu) {
+    public String visit(Type n, String argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -422,7 +450,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
     * f0 -> BooleanArrayType()
     *       | IntegerArrayType()
     */
-    public String visit(ArrayType n, String argu) {
+    public String visit(ArrayType n, String argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -431,7 +459,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
     * f1 -> "["
     * f2 -> "]"
     */
-   public String visit(IntegerArrayType n, String argu) {
+   public String visit(IntegerArrayType n, String argu) throws Exception {
       //R _ret=null;
 
       n.f0.accept(this, argu);
@@ -449,7 +477,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
     * f1 -> "["
     * f2 -> "]"
     */
-    public String visit(BooleanArrayType n, String argu) {
+    public String visit(BooleanArrayType n, String argu) throws Exception {
      //R _ret=null;
 
      n.f0.accept(this, argu);
@@ -463,7 +491,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
    }
 
 
-    public String visit(NodeToken n, String argu) { return n.toString(); }
+    public String visit(NodeToken n, String argu) throws Exception { return n.toString(); }
 
     
 }

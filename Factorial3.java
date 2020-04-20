@@ -54,18 +54,19 @@ class Fac {
 
 
 
-}
+}*/
 
 
 class Fac2 extends Fac{
-    int y;
+    //int y;
     boolean[] bool_arr;
     public int ComputeFac(int num, int g){
         int num_loc ;
 	num_loc = 1;
+	num_loc = y;
 	return num_loc ;
     }
-}*/
+}
 
 
 

@@ -14,7 +14,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
    //
    // Auto class visitors--probably don't need to be overridden.
    //
-   public R visit(NodeList n, A argu) {
+   public R visit(NodeList n, A argu) throws Exception {
       if (n.size() == 1)
          return n.elementAt(0).accept(this,argu);
       R _ret=null;
@@ -26,7 +26,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
       return _ret;
    }
 
-   public R visit(NodeListOptional n, A argu) {
+   public R visit(NodeListOptional n, A argu) throws Exception {
       if ( n.present() ) {
          if (n.size() == 1)
             return n.elementAt(0).accept(this,argu);
@@ -42,14 +42,14 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
          return null;
    }
 
-   public R visit(NodeOptional n, A argu) {
+   public R visit(NodeOptional n, A argu) throws Exception {
       if ( n.present() )
          return n.node.accept(this,argu);
       else
          return null;
    }
 
-   public R visit(NodeSequence n, A argu) {
+   public R visit(NodeSequence n, A argu) throws Exception {
       if (n.size() == 1)
          return n.elementAt(0).accept(this,argu);
       R _ret=null;
@@ -61,7 +61,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
       return _ret;
    }
 
-   public R visit(NodeToken n, A argu) { return null; }
+   public R visit(NodeToken n, A argu) throws Exception { return null; }
 
    //
    // User-generated visitor methods below
@@ -72,7 +72,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f1 -> ( TypeDeclaration() )*
     * f2 -> <EOF>
     */
-   public R visit(Goal n, A argu) {
+   public R visit(Goal n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -127,7 +127,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> ClassDeclaration()
     *       | ClassExtendsDeclaration()
     */
-   public R visit(TypeDeclaration n, A argu) {
+   public R visit(TypeDeclaration n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -223,7 +223,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> FormalParameter()
     * f1 -> FormalParameterTail()
     */
-   public R visit(FormalParameterList n, A argu) {
+   public R visit(FormalParameterList n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -244,7 +244,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
    /**
     * f0 -> ( FormalParameterTerm() )*
     */
-   public R visit(FormalParameterTail n, A argu) {
+   public R visit(FormalParameterTail n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -252,7 +252,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> ","
     * f1 -> FormalParameter()
     */
-   public R visit(FormalParameterTerm n, A argu) {
+   public R visit(FormalParameterTerm n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -265,7 +265,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     *       | IntegerType()
     *       | Identifier()
     */
-   public R visit(Type n, A argu) {
+   public R visit(Type n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -273,7 +273,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> BooleanArrayType()
     *       | IntegerArrayType()
     */
-   public R visit(ArrayType n, A argu) {
+   public R visit(ArrayType n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -282,7 +282,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f1 -> "["
     * f2 -> "]"
     */
-   public R visit(BooleanArrayType n, A argu) {
+   public R visit(BooleanArrayType n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -295,7 +295,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f1 -> "["
     * f2 -> "]"
     */
-   public R visit(IntegerArrayType n, A argu) {
+   public R visit(IntegerArrayType n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -306,14 +306,14 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
    /**
     * f0 -> "boolean"
     */
-   public R visit(BooleanType n, A argu) {
+   public R visit(BooleanType n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
    /**
     * f0 -> "int"
     */
-   public R visit(IntegerType n, A argu) {
+   public R visit(IntegerType n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -325,7 +325,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     *       | WhileStatement()
     *       | PrintStatement()
     */
-   public R visit(Statement n, A argu) {
+   public R visit(Statement n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -334,7 +334,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f1 -> ( Statement() )*
     * f2 -> "}"
     */
-   public R visit(Block n, A argu) {
+   public R visit(Block n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -444,7 +444,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     *       | MessageSend()
     *       | Clause()
     */
-   public R visit(Expression n, A argu) {
+   public R visit(Expression n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -593,7 +593,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> NotExpression()
     *       | PrimaryExpression()
     */
-   public R visit(Clause n, A argu) {
+   public R visit(Clause n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -607,28 +607,28 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     *       | AllocationExpression()
     *       | BracketExpression()
     */
-   public R visit(PrimaryExpression n, A argu) {
+   public R visit(PrimaryExpression n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
    /**
     * f0 -> <INTEGER_LITERAL>
     */
-   public R visit(IntegerLiteral n, A argu) {
+   public R visit(IntegerLiteral n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
    /**
     * f0 -> "true"
     */
-   public R visit(TrueLiteral n, A argu) {
+   public R visit(TrueLiteral n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
    /**
     * f0 -> "false"
     */
-   public R visit(FalseLiteral n, A argu) {
+   public R visit(FalseLiteral n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -642,7 +642,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
    /**
     * f0 -> "this"
     */
-   public R visit(ThisExpression n, A argu) {
+   public R visit(ThisExpression n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -650,7 +650,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> BooleanArrayAllocationExpression()
     *       | IntegerArrayAllocationExpression()
     */
-   public R visit(ArrayAllocationExpression n, A argu) {
+   public R visit(ArrayAllocationExpression n, A argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -707,7 +707,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f0 -> "!"
     * f1 -> Clause()
     */
-   public R visit(NotExpression n, A argu) {
+   public R visit(NotExpression n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
@@ -719,7 +719,7 @@ public class GJDepthFirst<R,A> implements GJVisitor<R,A> {
     * f1 -> Expression()
     * f2 -> ")"
     */
-   public R visit(BracketExpression n, A argu) {
+   public R visit(BracketExpression n, A argu) throws Exception {
       R _ret=null;
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);

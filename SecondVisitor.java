@@ -43,12 +43,19 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     String _ret=null;
     n.f0.accept(this, argu);
     this.in_assign = false;
-    n.f1.accept(this, argu);
+    
+    String main_class = n.f1.accept(this, argu);
+
+    this.curr_class = main_class;
+
     n.f2.accept(this, argu);
     n.f3.accept(this, argu);
     n.f4.accept(this, argu);
     n.f5.accept(this, argu);
-    n.f6.accept(this, argu);
+
+    String main = n.f6.accept(this, argu);
+    this.curr_meth = main;
+
     n.f7.accept(this, argu);
     n.f8.accept(this, argu);
     n.f9.accept(this, argu);
@@ -161,8 +168,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
         System.out.println("ANYTHING " + expr_type);
 
-        if(ret_type != expr_type){
-          throw new Exception("Type error!");
+        if (meth_name != "main"){
+          if(ret_type != expr_type){
+            throw new Exception("Type error!");
+          }
         }
 
         n.f11.accept(this, argu);
@@ -355,7 +364,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     *       | MessageSend()
     *       | Clause()
     */
-    public String visit(Expression n, String argu) {
+    public String visit(Expression n, String argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -676,7 +685,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     * f0 -> NotExpression()
     *       | PrimaryExpression()
     */
-    public String visit(Clause n, String argu) {
+    public String visit(Clause n, String argu) throws Exception {
       
       String Type = n.f0.accept(this, argu);
       return Type;
@@ -693,7 +702,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     *       | AllocationExpression()
     *       | BracketExpression()
     */
-    public String visit(PrimaryExpression n, String argu) {
+    public String visit(PrimaryExpression n, String argu) throws Exception {
       String Type = n.f0.accept(this, argu);
       return Type;
    }
@@ -803,28 +812,28 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
    /**
     * f0 -> <INTEGER_LITERAL>
     */
-    public String visit(IntegerLiteral n, String argu) {
+    public String visit(IntegerLiteral n, String argu) throws Exception {
       return "int";
    }
 
    /**
     * f0 -> "this"
     */
-    public String visit(ThisExpression n, String argu) {
+    public String visit(ThisExpression n, String argu) throws Exception {
       return curr_class;
    }
 
       /**
     * f0 -> "true"
     */
-    public String visit(TrueLiteral n, String argu) {
+    public String visit(TrueLiteral n, String argu) throws Exception {
       return "boolean";
    }
 
    /**
     * f0 -> "false"
     */
-   public String visit(FalseLiteral n, String argu) {
+   public String visit(FalseLiteral n, String argu) throws Exception {
       return "boolean";
    }
 
@@ -832,7 +841,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     * f0 -> BooleanArrayAllocationExpression()
     *       | IntegerArrayAllocationExpression()
     */
-    public String visit(ArrayAllocationExpression n, String argu) {
+    public String visit(ArrayAllocationExpression n, String argu) throws Exception {
       return n.f0.accept(this, argu);
    }
 
@@ -906,7 +915,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     * f0 -> "!"
     * f1 -> Clause()
     */
-    public String visit(NotExpression n, String argu) {
+    public String visit(NotExpression n, String argu) throws Exception {
       String _ret=null;
       n.f0.accept(this, argu);
       String Type = n.f1.accept(this, argu);
@@ -918,7 +927,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     * f1 -> Expression()
     * f2 -> ")"
     */
-    public String visit(BracketExpression n, String argu) {
+    public String visit(BracketExpression n, String argu) throws Exception {
       String _ret=null;
       n.f0.accept(this, argu);
       String Type = n.f1.accept(this, argu);
@@ -927,6 +936,6 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       return Type;
    }
 
-  public String visit(NodeToken n, String argu) { return n.toString(); }
+  public String visit(NodeToken n, String argu) throws Exception { return n.toString(); }
 
 }
