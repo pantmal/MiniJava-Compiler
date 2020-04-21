@@ -271,6 +271,17 @@ public class SymbolTable {
 
   }
 
+  public String get_last_key(){
+
+    String lKeyLast = null ;
+    for(String key : classId_table.keySet()){
+      lKeyLast = key;
+    }
+
+    return lKeyLast;
+
+  }
+
   public ClassTable get(String id){
 
     ClassTable temp = classId_table.get(id);

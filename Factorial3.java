@@ -102,7 +102,7 @@ class C extends B{
 
 class D extends C{
 
-public boolean foo(int k){
+public int foo(int k){
 	return 0;
 }
 
