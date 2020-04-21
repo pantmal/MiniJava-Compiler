@@ -166,7 +166,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         this.in_assign = true;
         String expr_type = n.f10.accept(this, argu);
 
-        System.out.println("ANYTHING " + expr_type);
+        //System.out.println("ANYTHING " + expr_type);
 
         if (meth_name != "main"){
           ClassTable right_table = null;
@@ -225,7 +225,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     this.in_assign = true;
     String r_Type = n.f2.accept(this, argu);
     
-    System.out.println("ANYTHING ass_visit r " + r_Type );
+    //System.out.println("ANYTHING ass_visit r " + r_Type );
 
     ClassTable right_table = null;
     if(r_Type != "int" && r_Type != "boolean" && r_Type != "int[]" && r_Type != "boolean[]"){
@@ -581,7 +581,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       this.in_assign = true;
       String obj_type = n.f0.accept(this, argu);
 
-      System.out.println("obj: "+ obj_type);
+      //System.out.println("obj: "+ obj_type);
 
       if (!(this.visitor_sym.classId_table.containsKey(obj_type)) ){
         throw new Exception("Type error!");

@@ -30,7 +30,7 @@ class MethodTable{
   //  local_table = new LinkedHashMap<String, String>();
   //}
 
-   String getKey(int index) {
+  public String getKey(int index) {
 
     Iterator<String> itr = param_table.keySet().iterator();
     for (int i = 0; i < index; i++) {
@@ -80,6 +80,8 @@ class MethodTable{
 class ClassTable{
 
   public String mother; 
+  public int ot_sum;
+  public int mt_sum;
   public LinkedHashMap<String, String> field_table ;
   public LinkedHashMap<String, Tuple<String,MethodTable>> methodId_table ;
   
@@ -94,6 +96,24 @@ class ClassTable{
 
     
   //}
+
+  public String getKey(int index) {
+
+    Iterator<String> itr = field_table.keySet().iterator();
+    for (int i = 0; i < index; i++) {
+        itr.next();
+    }
+    return itr.next();
+}
+
+public String getKey_m(int index) {
+
+  Iterator<String> itr = methodId_table.keySet().iterator();
+  for (int i = 0; i < index; i++) {
+      itr.next();
+  }
+  return itr.next();
+}
 
   public String recurse_lookup(String id, LinkedHashMap<String, ClassTable> classId_table ){
 
@@ -220,6 +240,50 @@ public class SymbolTable {
     }
 
     //return false;
+  }
+
+
+  public int find_field_table(String id){
+
+    ClassTable current = this.get(id);
+    ClassTable mom_table = this.get(current.mother);
+
+    if (current.mother == null && current.field_table == null ){
+      return 0;
+    }
+
+    if (mom_table.field_table == null){
+      return find_field_table(current.mother); 
+    }else{
+      return mom_table.ot_sum;
+    }
+  
+
+    //return false;
+  }
+
+
+  public int find_methodId_table(String id, int full_sum){
+
+    ClassTable current = this.get(id);
+    ClassTable mom_table = this.get(current.mother);
+
+    
+
+    if (current.mother == null ){
+      return full_sum;
+    }
+
+    if (mom_table.methodId_table != null){
+      full_sum = full_sum + mom_table.mt_sum;
+      return find_methodId_table(current.mother,full_sum); 
+      //System.out.println("fsum : " + full_sum);
+    }else{
+      return find_methodId_table(current.mother,full_sum); 
+    }
+  
+
+    //return 0;
   }
 
 

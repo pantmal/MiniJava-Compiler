@@ -234,7 +234,7 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       
 
       id = n.f1.accept(this, argu);
-	System.out.println(Type + " " + id);
+	//System.out.println(Type + " " + id);
       n.f2.accept(this, argu);
 
       if (current.field_table == null && current.methodId_table == null ){
