@@ -203,6 +203,53 @@ public class SymbolTable {
 
   LinkedHashMap<String, ClassTable> classId_table;
 
+
+  public boolean is_child(String f_mother, String child){
+
+    ClassTable current = this.get(child);
+
+    if (current.mother == null){
+      return false;
+    }else{
+      if (current.mother == f_mother){
+        return true;
+      }else{
+        //ClassTable new_mother = this.get(current.mother);
+        return is_child(f_mother, current.mother);
+      }
+    }
+
+    //return false;
+  }
+
+
+  public String mother_search(String mother, String id){
+
+    ClassTable current = this.get(mother);
+
+    if (current.mother == null){
+      return null;
+    }else{
+      boolean not_up = false;
+      ClassTable new_mother = this.get(current.mother);
+      if (new_mother.methodId_table != null){
+        if( new_mother.methodId_table.containsKey(id) ){
+            return current.mother;
+        }else{
+            not_up = true;
+        }
+      }
+
+      if( new_mother.methodId_table == null   ||  not_up == true  ){
+        return mother_search(current.mother,id);
+      }
+    }
+
+    return null;
+
+
+  }
+
   public void add_class(String id){
     
     if (classId_table == null){

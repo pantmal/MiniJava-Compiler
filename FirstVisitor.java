@@ -54,7 +54,6 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
 
       visitor_sym.add_class(main_class);
 
-      //Add some garbage code here so the local variables don't end up in fields
 
       n.f2.accept(this, argu);
       n.f3.accept(this, argu);
@@ -306,15 +305,42 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       }
       
       if(current.mother != null){
-            ClassTable mother = visitor_sym.get(current.mother);
-            if( mother.methodId_table.containsKey(id) ){
 
-                  Tuple<String, MethodTable> tupe =  mother.methodId_table.get(id);
-                  if(tupe.x != ret_Type ){
-                        throw new Exception("Semactic error!");      
+            boolean not_up = false;
+
+            ClassTable mother = visitor_sym.get(current.mother);
+            if (mother.methodId_table != null){
+                  if( mother.methodId_table.containsKey(id) ){
+
+                        Tuple<String, MethodTable> tupe =  mother.methodId_table.get(id);
+                        if(tupe.x != ret_Type ){
+                              throw new Exception("Semactic error!");      
+                        }
+                  }else{
+                        not_up = true;
                   }
-            
+            }     
+
+            if (mother.methodId_table == null || not_up == true){
+                  String new_mother = visitor_sym.mother_search(current.mother,id);
+                  if (new_mother != null){
+                  
+                        mother = visitor_sym.get(new_mother);
+                        if (mother.methodId_table != null){
+                              if( mother.methodId_table.containsKey(id) ){
+
+                                    Tuple<String, MethodTable> tupe =  mother.methodId_table.get(id);
+                                    if(tupe.x != ret_Type ){
+                                          throw new Exception("Semactic error!");      
+                                    }
+                                    
+                              }
+                        }
+
+                  }
             }
+
+
       }
 
       if (current.methodId_table != null){
@@ -330,40 +356,93 @@ public class FirstVisitor extends GJDepthFirst<String, String>{
       n.f4.accept(this, argu);
 
       if(current.mother != null){
+            
+            boolean not_up = false;
+
             ClassTable mother = visitor_sym.get(current.mother);
-            if( mother.methodId_table.containsKey(id) ){
+            if (mother.methodId_table != null){
+                  if( mother.methodId_table.containsKey(id) ){
 
 
-                  Tuple<String, MethodTable> mother_tupe =  mother.methodId_table.get(id);
-                  Tuple<String, MethodTable> curr_tupe = current.methodId_table.get(id);
-                  if( mother_tupe.y.param_table != null && curr_tupe.y.param_table == null){
-                        throw new Exception("Semactic error!");      
-                  }
-                  if( mother_tupe.y.param_table == null && curr_tupe.y.param_table != null){
-                        throw new Exception("Semactic error!");      
-                  }
-                  if( mother_tupe.y.param_table != null && curr_tupe.y.param_table != null){
-                        if (mother_tupe.y.param_table.size() != curr_tupe.y.param_table.size()){
-                              System.out.println(mother_tupe.y.param_table.size());
-                              System.out.println(curr_tupe.y.param_table.size());
+                        Tuple<String, MethodTable> mother_tupe =  mother.methodId_table.get(id);
+                        Tuple<String, MethodTable> curr_tupe = current.methodId_table.get(id);
+                        if( mother_tupe.y.param_table != null && curr_tupe.y.param_table == null){
                               throw new Exception("Semactic error!");      
                         }
-                        int counter = 0;
-                        for (String i : curr_tupe.y.param_table.keySet()) {
-                              String curr_check = curr_tupe.y.param_table.get(i);
-                              
-                              String check = mother_tupe.y.getKey(counter);
-                              String mother_type = mother_tupe.y.param_table.get(check);
-
-                              if(curr_check != mother_type){
+                        if( mother_tupe.y.param_table == null && curr_tupe.y.param_table != null){
+                              throw new Exception("Semactic error!");      
+                        }
+                        if( mother_tupe.y.param_table != null && curr_tupe.y.param_table != null){
+                              if (mother_tupe.y.param_table.size() != curr_tupe.y.param_table.size()){
+                                    System.out.println(mother_tupe.y.param_table.size());
+                                    System.out.println(curr_tupe.y.param_table.size());
                                     throw new Exception("Semactic error!");      
                               }
-                              
-                              counter++;
+                              int counter = 0;
+                              for (String i : curr_tupe.y.param_table.keySet()) {
+                                    String curr_check = curr_tupe.y.param_table.get(i);
+                                    
+                                    String check = mother_tupe.y.getKey(counter);
+                                    String mother_type = mother_tupe.y.param_table.get(check);
 
-                        }  
+                                    if(curr_check != mother_type){
+                                          throw new Exception("Semactic error!");      
+                                    }
+                                    
+                                    counter++;
+
+                              }  
+                        }
+                  
+                  }else{
+                        not_up = true;
                   }
+
+            }
+
+            if (mother.methodId_table == null || not_up == true){
+                  
+                  String new_mother = visitor_sym.mother_search(current.mother,id);
+                  if (new_mother != null){
+                  
+                        mother = visitor_sym.get(new_mother);
+                        if (mother.methodId_table != null){
+                              if( mother.methodId_table.containsKey(id) ){
+
+                                    Tuple<String, MethodTable> mother_tupe =  mother.methodId_table.get(id);
+                                    Tuple<String, MethodTable> curr_tupe = current.methodId_table.get(id);
+                                    if( mother_tupe.y.param_table != null && curr_tupe.y.param_table == null){
+                                          throw new Exception("Semactic error!");      
+                                    }
+                                    if( mother_tupe.y.param_table == null && curr_tupe.y.param_table != null){
+                                          throw new Exception("Semactic error!");      
+                                    }
+                                    if( mother_tupe.y.param_table != null && curr_tupe.y.param_table != null){
+                                          if (mother_tupe.y.param_table.size() != curr_tupe.y.param_table.size()){
+                                                System.out.println(mother_tupe.y.param_table.size());
+                                                System.out.println(curr_tupe.y.param_table.size());
+                                                throw new Exception("Semactic error!");      
+                                          }
+                                          int counter = 0;
+                                          for (String i : curr_tupe.y.param_table.keySet()) {
+                                                String curr_check = curr_tupe.y.param_table.get(i);
+                                                
+                                                String check = mother_tupe.y.getKey(counter);
+                                                String mother_type = mother_tupe.y.param_table.get(check);
             
+                                                if(curr_check != mother_type){
+                                                      throw new Exception("Semactic error!");      
+                                                }
+                                                
+                                                counter++;
+            
+                                          }  
+                                    }
+                                    
+                              }
+                        }
+
+                  }
             }
       }
 

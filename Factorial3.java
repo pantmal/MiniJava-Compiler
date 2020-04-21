@@ -68,7 +68,45 @@ class Fac2 extends Fac{
     }
 }
 
+/*class Fac3 extends Fac2{
 
+	public int SomeFunc(int g,int k, int j){
+	x = k;
+	
+    	return 1;
+	    }	
+	
+	
+}*/
+
+
+
+class A{
+ 
+ public int foo(int g){
+	return 0;
+}
+
+}
+
+class B extends A{
+
+
+}
+
+class C extends B{
+ 
+
+
+}
+
+class D extends C{
+
+public boolean foo(int k){
+	return 0;
+}
+
+}
 
 
 

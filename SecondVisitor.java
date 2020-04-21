@@ -169,8 +169,28 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         System.out.println("ANYTHING " + expr_type);
 
         if (meth_name != "main"){
-          if(ret_type != expr_type){
-            throw new Exception("Type error!");
+          ClassTable right_table = null;
+          if(expr_type != "int" && expr_type != "boolean" && expr_type != "int[]" && expr_type != "boolean[]"){
+            right_table = visitor_sym.classId_table.get(expr_type);
+          }
+      
+          if(right_table!=null){
+            if(right_table.mother==null){
+              if (ret_type != expr_type){ 
+                throw new Exception("Type error!");
+              }  
+            }else{
+              boolean child = visitor_sym.is_child(ret_type,expr_type);
+              if( ret_type != expr_type  && child == false ){
+                throw new Exception("Type error!");  
+              }
+            }
+      
+          }else{
+      
+            if (ret_type != expr_type){ 
+              throw new Exception("Type error!");
+            }
           }
         }
 
@@ -207,8 +227,28 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     
     System.out.println("ANYTHING ass_visit r " + r_Type );
 
-    if (l_Type != r_Type){ //CAREFUL SUBTYPES NEED CHECKING
-      throw new Exception("Type error!");
+    ClassTable right_table = null;
+    if(r_Type != "int" && r_Type != "boolean" && r_Type != "int[]" && r_Type != "boolean[]"){
+      right_table = visitor_sym.classId_table.get(r_Type);
+    }
+
+    if(right_table!=null){
+      if(right_table.mother==null){
+        if (l_Type != r_Type){ 
+          throw new Exception("Type error!");
+        }  
+      }else{
+        boolean child = visitor_sym.is_child(l_Type,r_Type);
+        if( l_Type != r_Type  && child == false ){
+          throw new Exception("Type error!");  
+        }
+      }
+
+    }else{
+
+      if (l_Type != r_Type){ 
+        throw new Exception("Type error!");
+      }
     }
     
     
@@ -552,6 +592,8 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       String meth_name = n.f2.accept(this, argu);
 
       ClassTable temp = visitor_sym.classId_table.get(obj_type);
+      
+      Tuple<String, MethodTable> tupe;
 
       if (temp.mother == null){
         if (temp.methodId_table == null){
@@ -561,15 +603,31 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
           throw new Exception("Type error!");
         }
         
-        Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
+        tupe = temp.methodId_table.get(meth_name);
 
       }else{
-
-        //We need work here
+        boolean not_local = false;
+        if (temp.methodId_table == null){
+          not_local = true;
+        }else if (!(temp.methodId_table.containsKey(meth_name)) ){
+          not_local = true;
+        }
+        
+        if(not_local == false){
+          tupe = temp.methodId_table.get(meth_name);
+        }else{
+          String new_mother = visitor_sym.mother_search(obj_type,meth_name);
+          if (new_mother != null){
+            ClassTable mother_table = visitor_sym.get(new_mother);
+            tupe = mother_table.methodId_table.get(meth_name);
+          }else{
+            throw new Exception("Type error!");
+          }
+        }
+        
 
       }
 
-      Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
 
       String ret_type = tupe.x;
 
@@ -632,8 +690,28 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       String check = tupe.y.getKey(curr_counter);
       String type_check = tupe.y.param_table.get(check);
 
-      if(Type != type_check){ //CAREFUL FOR SUB_TYPES
-        throw new Exception("Type error!");
+      ClassTable right_table = null;
+      if(Type != "int" && Type != "boolean" && Type != "int[]" && Type != "boolean[]"){
+        right_table = visitor_sym.classId_table.get(Type);
+      }
+  
+      if(right_table!=null){
+        if(right_table.mother==null){
+          if (type_check != Type){ 
+            throw new Exception("Type error!");
+          }  
+        }else{
+          boolean child = visitor_sym.is_child(type_check,Type);
+          if( type_check != Type  && child == false ){
+            throw new Exception("Type error!");  
+          }
+        }
+  
+      }else{
+  
+        if (type_check != Type){ 
+          throw new Exception("Type error!");
+        }
       }
 
       n.f1.accept(this, argu);
@@ -682,8 +760,28 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       String check = tupe.y.getKey(curr_counter);
       String type_check = tupe.y.param_table.get(check);
 
-      if(Type != type_check){ //CAREFUL FOR SUB_TYPES
-        throw new Exception("Type error!");
+      ClassTable right_table = null;
+      if(Type != "int" && Type != "boolean" && Type != "int[]" && Type != "boolean[]"){
+        right_table = visitor_sym.classId_table.get(Type);
+      }
+  
+      if(right_table!=null){
+        if(right_table.mother==null){
+          if (type_check != Type){ 
+            throw new Exception("Type error!");
+          }  
+        }else{
+          boolean child = visitor_sym.is_child(type_check,Type);
+          if( type_check != Type  && child == false ){
+            throw new Exception("Type error!");  
+          }
+        }
+  
+      }else{
+  
+        if (type_check != Type){ 
+          throw new Exception("Type error!");
+        }
       }
 
 
