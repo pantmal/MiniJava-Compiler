@@ -2,22 +2,21 @@ import visitor.*;
 import syntaxtree.*;
 import java.util.*;
 
-
-
+//The Second Visitor will perform type checks in our program.
 public class SecondVisitor extends GJDepthFirst<String, String>{
       
     public SymbolTable visitor_sym;
-    public String curr_class;
-    public String curr_meth;
-    //public String 
-    public boolean in_assign;
-    public Stack counterStack;
-
-    public SecondVisitor(SymbolTable st){
+    public String curr_class; //Curr_class will get the "scope" of the last class we're on.
+    public String curr_meth; //Curr_class will get the "scope" of the last method we're on.
+    public Stack counterStack; //counterStack will used to store some counters. Its usage will be explained in the MessageSend visit.
+    public boolean give_type; //Give_type will be used in order to get the type of the identifier.
+    // Will be set to false in some cases because we may need the name of the identifier and not its type. 
+    
+    
+    //The constructor gets the SymbolTable object. 
+    public SecondVisitor(SymbolTable st){ 
         this.visitor_sym = st;   
     }
-
-
 
        /**
     * f0 -> "class"
@@ -42,10 +41,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
    public String visit(MainClass n, String argu) throws Exception {
     String _ret=null;
     n.f0.accept(this, argu);
-    this.in_assign = false;
-    
-    String main_class = n.f1.accept(this, argu);
 
+
+    this.give_type = false;
+    String main_class = n.f1.accept(this, argu);
     this.curr_class = main_class;
 
     n.f2.accept(this, argu);
@@ -60,7 +59,8 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     n.f8.accept(this, argu);
     n.f9.accept(this, argu);
     n.f10.accept(this, argu);
-    this.in_assign = false;
+
+    this.give_type = false;
     String id = n.f11.accept(this, argu);
 
     n.f12.accept(this, argu);
@@ -86,7 +86,8 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     String _ret=null;
 
     n.f0.accept(this, argu);
-    this.in_assign = false;
+
+    this.give_type = false;
     String class_name = n.f1.accept(this, argu);
     this.curr_class = class_name;
 
@@ -94,9 +95,6 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     n.f3.accept(this, argu);
     n.f4.accept(this, argu);
     n.f5.accept(this, argu);
-
-
-
 
     return _ret;
  }
@@ -113,14 +111,18 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     */
     public String visit(ClassExtendsDeclaration n, String argu) throws Exception {
         String _ret=null;
+
         n.f0.accept(this, argu);
-        this.in_assign = false;
+
+        this.give_type = false;
         String class_name = n.f1.accept(this, argu);
         this.curr_class = class_name;
 
         n.f2.accept(this, argu);
-        this.in_assign = false;
+        
+        this.give_type = false;
         n.f3.accept(this, argu);
+
         n.f4.accept(this, argu);
         n.f5.accept(this, argu);
         n.f6.accept(this, argu);
@@ -145,15 +147,15 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     */
     public String visit(MethodDeclaration n, String argu) throws Exception {
         String _ret=null;
+
         n.f0.accept(this, argu);
-        this.in_assign = false;
+
+        this.give_type = false;
         String ret_type = n.f1.accept(this, argu);
 
-
-        this.in_assign = false;
+        this.give_type = false;
         String meth_name = n.f2.accept(this, argu);
         this.curr_meth = meth_name;
-
 
         n.f3.accept(this, argu);
         n.f4.accept(this, argu);
@@ -163,31 +165,35 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         n.f8.accept(this, argu);
         n.f9.accept(this, argu);
 
-        this.in_assign = true;
+        this.give_type = true;
         String expr_type = n.f10.accept(this, argu);
 
-        //System.out.println("ANYTHING " + expr_type);
 
         if (meth_name != "main"){
           ClassTable right_table = null;
+
+          //Getting the Class Table of the type returned from the expression (if it's a class)
           if(expr_type != "int" && expr_type != "boolean" && expr_type != "int[]" && expr_type != "boolean[]"){
             right_table = visitor_sym.classId_table.get(expr_type);
           }
       
           if(right_table!=null){
+            
+            //If the expression type has no mother, we check if the return type is different that the one returned from the expression.
             if(right_table.mother==null){
               if (ret_type != expr_type){ 
                 throw new Exception("Type error!");
               }  
-            }else{
+            }else{ //If the expression type has a mother, we need to check if the return type is in the hierarchy.
               boolean child = visitor_sym.is_child(ret_type,expr_type);
-              if( ret_type != expr_type  && child == false ){
+              if( ret_type != expr_type  && child == false ){ //If child is false, this means expr_type does not have ret_type as its mother.
                 throw new Exception("Type error!");  
               }
             }
       
           }else{
-      
+            
+            //If the return type is different than the one returned from the expression, we have a type error.
             if (ret_type != expr_type){ 
               throw new Exception("Type error!");
             }
@@ -211,41 +217,47 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
   public String visit(AssignmentStatement n, String argu) throws Exception {
     
     String _ret=null;
-    this.in_assign = true;
+
+    //Getting the left type.
+    this.give_type = true;
     String l_Type = n.f0.accept(this, argu);
 
+    //Getting the ClassTable of our current class.
     ClassTable temp = visitor_sym.classId_table.get(curr_class);
     
+    //Same thing for the method.
     Tuple<String, MethodTable> tupe = temp.methodId_table.get(curr_meth);
 
-    //System.out.println("ANYTHING " + curr_meth);
-
+  
     n.f1.accept(this, argu);
 
-    this.in_assign = true;
+    //Getting the right type.
+    this.give_type = true;
     String r_Type = n.f2.accept(this, argu);
     
-    //System.out.println("ANYTHING ass_visit r " + r_Type );
-
+    //Getting the Class Table of the type returned from the expression (if it's a class).
     ClassTable right_table = null;
     if(r_Type != "int" && r_Type != "boolean" && r_Type != "int[]" && r_Type != "boolean[]"){
       right_table = visitor_sym.classId_table.get(r_Type);
     }
 
     if(right_table!=null){
+
+      //If the expression type has no mother, we check if the left type is different that the one returned from the expression.
       if(right_table.mother==null){
         if (l_Type != r_Type){ 
           throw new Exception("Type error!");
         }  
-      }else{
+      }else{ //If the expression type has a mother, we need to check if the left type is in the hierarchy.
         boolean child = visitor_sym.is_child(l_Type,r_Type);
-        if( l_Type != r_Type  && child == false ){
+        if( l_Type != r_Type  && child == false ){ //If child is false, this means expr_type does not have ret_type as its mother.
           throw new Exception("Type error!");  
         }
       }
 
     }else{
 
+      //If the left type is different than the one returned from the expression, we have a type error.
       if (l_Type != r_Type){ 
         throw new Exception("Type error!");
       }
@@ -253,7 +265,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     
     
     n.f3.accept(this, argu);
-    this.in_assign = false;
+    this.give_type = false;
 
     return _ret;
  }
@@ -270,14 +282,15 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     */
     public String visit(ArrayAssignmentStatement n, String argu) throws Exception {
       String _ret=null;
-      this.in_assign = true;
+
+      this.give_type = true;
       String left_Type = n.f0.accept(this, argu);
 
-      if( (left_Type != "int[]") && (left_Type != "boolean[]") ){
+      if( (left_Type != "int[]") && (left_Type != "boolean[]") ){ //Left type must be an array.
         throw new Exception("Type error!");
       }
 
-      String arr_type = null;
+      String arr_type = null; //Setting the appropiate array type.
       if (left_Type == "int[]" ){
         arr_type = "int[]";
       }else if (left_Type == "boolean[]" ){
@@ -288,23 +301,24 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f1.accept(this, argu);
       String index = n.f2.accept(this, argu);
 
-      if (index != "int"){
+      if (index != "int"){ //Index must be of type int.
         throw new Exception("Type error!");
       }
 
       n.f3.accept(this, argu);
       n.f4.accept(this, argu);
+
       String right_Type = n.f5.accept(this, argu);
 
-      if( (right_Type != "int") && (right_Type != "boolean")  ){
+      if( (right_Type != "int") && (right_Type != "boolean")  ){ //Right type must be either int or boolean.
         throw new Exception("Type error!");
       }
 
-      if (right_Type == "int" ){
+      if (right_Type == "int" ){ //Ints have to be stored in an int type.
         if(arr_type != "int[]"){
           throw new Exception("Type error!");
         }
-      }else if (right_Type == "boolean" ){
+      }else if (right_Type == "boolean" ){//Same thing for booleans.
         if( arr_type != "boolean[]"){
           throw new Exception("Type error!");
         }
@@ -329,10 +343,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
 
-      this.in_assign = true;
+      this.give_type = true;
       String cond = n.f2.accept(this, argu);
 
-      if (cond != "boolean"){
+      if (cond != "boolean"){ //The expression inside the condition must be of boolean type.
         throw new Exception("Type error!");
       }
 
@@ -355,10 +369,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
 
-      this.in_assign = true;
+      this.give_type = true;
       String cond = n.f2.accept(this, argu);
 
-      if (cond != "boolean"){
+      if (cond != "boolean"){ //The expression inside the condition must be of boolean type.
         throw new Exception("Type error!");
       }
 
@@ -380,10 +394,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
 
-      this.in_assign = true;
+      this.give_type = true;
       String print_arg = n.f2.accept(this, argu);
 
-      if (print_arg != "int"){
+      if (print_arg != "int"){ //The expression inside the println() argument must be of int type.
         throw new Exception("Type error!");
       }
 
@@ -421,7 +435,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f1.accept(this, argu);
       String R_type = n.f2.accept(this, argu);
 
-      if(L_type != "boolean" || R_type != "boolean" ){
+      if(L_type != "boolean" || R_type != "boolean" ){ //Both clauses in an AndExpression must of boolean type.
         throw new Exception("Type error!");
       }
 
@@ -436,17 +450,16 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     public String visit(CompareExpression n, String argu) throws Exception {
       String _ret=null;
 
-      this.in_assign = true;
+      this.give_type = true;
       String L_type = n.f0.accept(this, argu);
       
       n.f1.accept(this, argu);
 
-      this.in_assign=true;
+      this.give_type = true;
       String R_type = n.f2.accept(this, argu);
       
-      //System.out.println("ANYTHING " + L_type + R_type);
 
-      if(L_type != "int" || R_type != "int" ){
+      if(L_type != "int" || R_type != "int" ){ //Both primary expressions in a CompareExpression must of int type.
         throw new Exception("Type error!");
       }
 
@@ -465,7 +478,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f1.accept(this, argu);
       String R_type = n.f2.accept(this, argu);
 
-      if(L_type != "int" || R_type != "int" ){
+      if(L_type != "int" || R_type != "int" ){ //Both primary expressions in a PlusExpression must of int type.
         throw new Exception("Type error!");
       }
 
@@ -484,7 +497,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f1.accept(this, argu);
       String R_type = n.f2.accept(this, argu);
 
-      if(L_type != "int" || R_type != "int" ){
+      if(L_type != "int" || R_type != "int" ){ //Both primary expressions in a MinusExpression must of int type.
         throw new Exception("Type error!");
       }
 
@@ -503,7 +516,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f1.accept(this, argu);
       String R_type = n.f2.accept(this, argu);
 
-      if(L_type != "int" || R_type != "int" ){
+      if(L_type != "int" || R_type != "int" ){ //Both primary expressions in a TimesExpression must of int type.
         throw new Exception("Type error!");
       }
 
@@ -521,13 +534,13 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       String _ret=null;
 
       String item_ret = null;
-      String arr_name = n.f0.accept(this, argu);
+      String arr_type = n.f0.accept(this, argu);
 
-      if (arr_name == "int[]" || arr_name == "boolean[]"){
-        if (arr_name == "int[]"){
+      if (arr_type == "int[]" || arr_type == "boolean[]"){ //Setting the appropiate return type based on the array type.
+        if (arr_type == "int[]"){
           item_ret = "int";
         }
-        if (arr_name == "boolean[]"){
+        if (arr_type == "boolean[]"){
           item_ret = "boolean";
         }
       }else{
@@ -535,9 +548,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       }
 
       n.f1.accept(this, argu);
+
       String index = n.f2.accept(this, argu);
 
-      if( index != "int" ){
+      if( index != "int" ){ //The index must be of type int.
         throw new Exception("Type error!");
       }
 
@@ -555,9 +569,9 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     public String visit(ArrayLength n, String argu) throws Exception {
       String _ret=null;
       
-      String arr_name = n.f0.accept(this, argu);
+      String arr_type = n.f0.accept(this, argu);
 
-      if (arr_name != "int[]" && arr_name != "boolean[]"){
+      if (arr_type != "int[]" && arr_type != "boolean[]"){ //Making sure we have an array type.
         throw new Exception("Type error!");
       }
 
@@ -578,34 +592,36 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     public String visit(MessageSend n, String argu) throws Exception {
       String _ret=null;
 
-      this.in_assign = true;
+      this.give_type = true;
       String obj_type = n.f0.accept(this, argu);
 
-      //System.out.println("obj: "+ obj_type);
-
-      if (!(this.visitor_sym.classId_table.containsKey(obj_type)) ){
+    
+      if (!(this.visitor_sym.classId_table.containsKey(obj_type)) ){ //Making sure the type of the object appears in the classId table.
         throw new Exception("Type error!");
       }
 
       n.f1.accept(this, argu);
-      this.in_assign = false; //NOT RESET TO TRUE?
+      this.give_type = false; 
       String meth_name = n.f2.accept(this, argu);
 
+      //Getting its Class Table.
       ClassTable temp = visitor_sym.classId_table.get(obj_type);
       
       Tuple<String, MethodTable> tupe;
 
-      if (temp.mother == null){
-        if (temp.methodId_table == null){
+      if (temp.mother == null){ //If the object's class doesn't have a mother 
+        if (temp.methodId_table == null){ //Throw an exception if there aren't any methods.
           throw new Exception("Type error!");
         }
-        if (!(temp.methodId_table.containsKey(meth_name)) ){
+        if (!(temp.methodId_table.containsKey(meth_name)) ){//Or if the method isn't in the methodId table.
           throw new Exception("Type error!");
         }
         
-        tupe = temp.methodId_table.get(meth_name);
+        tupe = temp.methodId_table.get(meth_name); //Otherwise get the tuple containing the return type and MethodTable of the method.
 
-      }else{
+      }else{ //If the object's class has at least one mother 
+
+        //Check if the method Id is in the table of our current class.
         boolean not_local = false;
         if (temp.methodId_table == null){
           not_local = true;
@@ -613,14 +629,18 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
           not_local = true;
         }
         
+        //If the method Id is in the table of our current class, get the tuple containing the return type and MethodTable.
         if(not_local == false){
           tupe = temp.methodId_table.get(meth_name);
-        }else{
+        }else{ //If it's not in the current table, we will check the table of the first mother we find.
+          
           String new_mother = visitor_sym.mother_search(obj_type,meth_name);
-          if (new_mother != null){
+          if (new_mother != null){ //If new_mother is not null this means the function is the class hierarchy. 
+            
+            //So we"ll get the tuple from the ClassTable of the mother we found.
             ClassTable mother_table = visitor_sym.get(new_mother);
             tupe = mother_table.methodId_table.get(meth_name);
-          }else{
+          }else{ //If new_mother is null this means the function is not the class hierarchy.
             throw new Exception("Type error!");
           }
         }
@@ -628,12 +648,13 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
       }
 
-
+      //The return type is the left part of the tuple.
       String ret_type = tupe.x;
 
       n.f3.accept(this, argu);
-      this.in_assign = true;
+      this.give_type = true;
 
+      //We create a counterStack here. This Stack will keep the counters of every argument list.
       if ( counterStack == null ){
         counterStack = new Stack();  
       }
@@ -641,15 +662,16 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       int counter = 0;
       counterStack.push(counter);
 
-      String comb = obj_type + "-" + meth_name;
+      String comb = obj_type + "-" + meth_name; //Passing the combination of the object type and method name for the next accept function.
 
       String expr_list = n.f4.accept(this, comb);
       
-      
+      //Here the calling function parameter table does not have the same size as the one it was declared with.       
       if ( ( tupe.y.param_table != null && expr_list == null ) || ( tupe.y.param_table == null && expr_list != null )  ){
         throw new Exception("Type error!");
       }
 
+      //Same check here, with the difference that both parameter tables have at least one item.
       if (tupe.y.param_table != null && expr_list != null){
         
         int arg_counter = (int) counterStack.peek();
@@ -659,6 +681,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
       }
 
+      //We finished checking the parameter tables, so the counter can be removed from the stack.
       counterStack.pop();
 
       n.f5.accept(this, argu);
@@ -673,42 +696,48 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
    public String visit(ExpressionList n, String argu) throws Exception {
     String _ret=null;
 
-      String Type = n.f0.accept(this, argu);
+      String Type = n.f0.accept(this, argu); //Getting the Type of the calling expression.
 
-      int curr_counter = (int) counterStack.peek();
+      int curr_counter = (int) counterStack.peek(); //Getting the last counter.
 
 
-      String string = argu;
+      String string = argu; //Splitting the combined strings.
       String[] parts = string.split("-");
-      String obj_type = parts[0]; // 004
-      String meth_name = parts[1]; // 034556
+      String obj_type = parts[0]; 
+      String meth_name = parts[1];
 
+      //Getting the tables we need.
       ClassTable temp = visitor_sym.classId_table.get(obj_type);
      
       Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
 
+      //Getting the type we want from the parameter table using as the index the counter we're on.
       String check = tupe.y.getKey(curr_counter);
       String type_check = tupe.y.param_table.get(check);
 
+      //Getting the Class Table of the type from the calling expression (if it's a class).
       ClassTable right_table = null;
       if(Type != "int" && Type != "boolean" && Type != "int[]" && Type != "boolean[]"){
         right_table = visitor_sym.classId_table.get(Type);
       }
   
       if(right_table!=null){
+
+        //If the calling expression type has no mother, we check if the type in the declaration is different from the one of the calling expression.
         if(right_table.mother==null){
           if (type_check != Type){ 
             throw new Exception("Type error!");
           }  
-        }else{
+        }else{ //If the calling expression type has a mother, we need to check if the declaration type is in the hierarchy.
           boolean child = visitor_sym.is_child(type_check,Type);
-          if( type_check != Type  && child == false ){
+          if( type_check != Type  && child == false ){ //If child is false, this means calling expression type does not have the declaration type as its mother.
             throw new Exception("Type error!");  
           }
         }
   
       }else{
   
+        //If the calling expression type is different than the type in the declaration, we have a type error.
         if (type_check != Type){ 
           throw new Exception("Type error!");
         }
@@ -735,50 +764,59 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       String _ret=null;
       n.f0.accept(this, argu);
 
+      //We have a new expression here, so we increment the last counter in the Stack.
       int inc_counter = (int) counterStack.peek();
       inc_counter++;
 
-      counterStack.set((counterStack.size()-1), inc_counter); //counterStack.peek();
+      //Changing its value in the Stack
+      counterStack.set((counterStack.size()-1), inc_counter); 
 
-      int curr_counter = (int) counterStack.peek();
+      int curr_counter = (int) counterStack.peek(); //Getting the last counter.
     
-      String Type = n.f1.accept(this, argu);
+      String Type = n.f1.accept(this, argu); //Getting the Type of the calling expression.
 
-      String string = argu;
+      String string = argu;//Splitting the combined strings.
       String[] parts = string.split("-");
-      String obj_type = parts[0]; // 004
-      String meth_name = parts[1]; // 034556
+      String obj_type = parts[0]; 
+      String meth_name = parts[1]; 
 
+      //Getting the tables we need.
       ClassTable temp = visitor_sym.classId_table.get(obj_type);
      
       Tuple<String, MethodTable> tupe = temp.methodId_table.get(meth_name);
 
-      if ( tupe.y.param_table.size() < (curr_counter+1) ){
+      //If the counter exceeded the size of the parameter table we have more arguments in the calling expression.
+      if ( tupe.y.param_table.size() < (curr_counter+1) ){ 
         throw new Exception("Type error!");
       }
 
+      //Getting the type we want from the parameter table using as the index the counter we're on.
       String check = tupe.y.getKey(curr_counter);
       String type_check = tupe.y.param_table.get(check);
 
+      //Getting the Class Table of the type from the calling expression (if it's a class).
       ClassTable right_table = null;
       if(Type != "int" && Type != "boolean" && Type != "int[]" && Type != "boolean[]"){
         right_table = visitor_sym.classId_table.get(Type);
       }
   
       if(right_table!=null){
+
+        //If the calling expression type has no mother, we check if the type in the declaration is different from the one of the calling expression.
         if(right_table.mother==null){
           if (type_check != Type){ 
             throw new Exception("Type error!");
           }  
-        }else{
+        }else{ //If the calling expression type has a mother, we need to check if the declaration type is in the hierarchy.
           boolean child = visitor_sym.is_child(type_check,Type);
-          if( type_check != Type  && child == false ){
+          if( type_check != Type  && child == false ){ //If child is false, this means calling expression type does not have the declaration type as its mother.
             throw new Exception("Type error!");  
           }
         }
   
       }else{
   
+        //If the calling expression type is different than the type in the declaration, we have a type error.
         if (type_check != Type){ 
           throw new Exception("Type error!");
         }
@@ -823,56 +861,75 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     */
     public String visit(Identifier n, String argu) throws Exception {
 
-      if (in_assign == true){
+      if (give_type == true){ //Returning the Type if the identifier.
       
-      ClassTable temp = visitor_sym.classId_table.get(curr_class);
-    
-      Tuple<String, MethodTable> tupe = temp.methodId_table.get(curr_meth);
+        //Getting the tables we need.
+        ClassTable temp = visitor_sym.classId_table.get(curr_class);
+        Tuple<String, MethodTable> tupe = temp.methodId_table.get(curr_meth);
 
-      String id = n.f0.accept(this, argu);
+        String id = n.f0.accept(this, argu);
 
-      String Type = null;
+        String Type = null;
 
-      if ( tupe.y.param_table == null && tupe.y.local_table == null  ){
-        if ( temp.field_table != null  ){
-          if( temp.field_table.containsKey(id) ) {
-            Type = temp.field_table.get(id);
+        //Taking in account the many cases we have.
+
+        //The general idea for every if statement is as follows: 
+        //First we check if the variable is in the local or parameter table of the method we're in. 
+        //If not we check the field table of the class we're in. 
+        //If not we also check the field table of the first mother we find (if the class is in hierarchy).
+
+        if ( tupe.y.param_table == null && tupe.y.local_table == null  ){
+          if ( temp.field_table != null  ){
+            if( temp.field_table.containsKey(id) ) {
+              Type = temp.field_table.get(id);
+              return Type;
+            }else{
+              if (temp.mother != null ){
+                ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                if (Type == null){
+                  throw new Exception("Type error!");    
+                }else{
+                  return Type;
+                }
+              }
+              throw new Exception("Type error!");
+            }
+          }else{
+            if (temp.mother != null ){
+              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table);
+              if (Type == null){
+                throw new Exception("Type error!");    
+              }else{
+                return Type;
+              }
+            }
+            throw new Exception("Type error!");
+          }
+        }
+
+        if ( tupe.y.param_table == null && tupe.y.local_table != null  ){
+          if ( tupe.y.local_table.containsKey(id)  ){
+            Type = tupe.y.local_table.get(id);
             return Type;
           }else{
-            if (temp.mother != null ){
-              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
-              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
-              if (Type == null){
-                throw new Exception("Type error!");    
-              }else{
+            if ( temp.field_table != null  ){
+              if( temp.field_table.containsKey(id) ) {
+                Type = temp.field_table.get(id);
                 return Type;
+              }else{
+                if (temp.mother != null ){
+                  ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                  Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                  if (Type == null){
+                    throw new Exception("Type error!");    
+                  }else{
+                    return Type;
+                  }
+                }
+                throw new Exception("Type error!");
               }
-            }
-            throw new Exception("Type error!");
-          }
-        }else{
-          if (temp.mother != null ){
-            ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
-            Type = mother_t.recurse_lookup(id, visitor_sym.classId_table);
-            if (Type == null){
-              throw new Exception("Type error!");    
-            }else{
-              return Type;
-            }
-          }
-          throw new Exception("Type error!");
-        }
-      }
-
-      if ( tupe.y.param_table == null && tupe.y.local_table != null  ){
-        if ( tupe.y.local_table.containsKey(id)  ){
-          Type = tupe.y.local_table.get(id);
-          return Type;
-        }else{
-          if ( temp.field_table != null  ){
-            if( temp.field_table.containsKey(id) ) {
-              Type = temp.field_table.get(id);
-              return Type;
             }else{
               if (temp.mother != null ){
                 ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
@@ -885,31 +942,31 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
               }
               throw new Exception("Type error!");
             }
-          }else{
-            if (temp.mother != null ){
-              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
-              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
-              if (Type == null){
-                throw new Exception("Type error!");    
-              }else{
-                return Type;
-              }
-            }
-            throw new Exception("Type error!");
           }
         }
-      }
 
 
-      if ( tupe.y.param_table != null && tupe.y.local_table == null  ){
-        if ( tupe.y.param_table.containsKey(id)  ){
-          Type = tupe.y.param_table.get(id);
-          return Type;
-        }else{
-          if ( temp.field_table != null  ){
-            if( temp.field_table.containsKey(id) ) {
-              Type = temp.field_table.get(id);
-              return Type;
+        if ( tupe.y.param_table != null && tupe.y.local_table == null  ){
+          if ( tupe.y.param_table.containsKey(id)  ){
+            Type = tupe.y.param_table.get(id);
+            return Type;
+          }else{
+            if ( temp.field_table != null  ){
+              if( temp.field_table.containsKey(id) ) {
+                Type = temp.field_table.get(id);
+                return Type;
+              }else{
+                if (temp.mother != null ){
+                  ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                  Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                  if (Type == null){
+                    throw new Exception("Type error!");    
+                  }else{
+                    return Type;
+                  }
+                }
+                throw new Exception("Type error!");
+              }
             }else{
               if (temp.mother != null ){
                 ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
@@ -922,34 +979,34 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
               }
               throw new Exception("Type error!");
             }
-          }else{
-            if (temp.mother != null ){
-              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
-              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
-              if (Type == null){
-                throw new Exception("Type error!");    
-              }else{
-                return Type;
-              }
-            }
-            throw new Exception("Type error!");
           }
         }
-      }
 
 
-      if ( tupe.y.param_table != null && tupe.y.local_table != null  ){
-        if ( tupe.y.param_table.containsKey(id)  ){
-          Type = tupe.y.param_table.get(id);
-          return Type;
-        }else if ( tupe.y.local_table.containsKey(id) ){
-          Type = tupe.y.local_table.get(id);
-          return Type;
-        }else{
-          if ( temp.field_table != null  ){
-            if( temp.field_table.containsKey(id) ) {
-              Type = temp.field_table.get(id);
-              return Type;
+        if ( tupe.y.param_table != null && tupe.y.local_table != null  ){
+          if ( tupe.y.param_table.containsKey(id)  ){
+            Type = tupe.y.param_table.get(id);
+            return Type;
+          }else if ( tupe.y.local_table.containsKey(id) ){
+            Type = tupe.y.local_table.get(id);
+            return Type;
+          }else{
+            if ( temp.field_table != null  ){
+              if( temp.field_table.containsKey(id) ) {
+                Type = temp.field_table.get(id);
+                return Type;
+              }else{
+                if (temp.mother != null ){
+                  ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
+                  Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
+                  if (Type == null){
+                    throw new Exception("Type error!");    
+                  }else{
+                    return Type;
+                  }
+                }
+                throw new Exception("Type error!");
+              }
             }else{
               if (temp.mother != null ){
                 ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
@@ -962,33 +1019,18 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
               }
               throw new Exception("Type error!");
             }
-          }else{
-            if (temp.mother != null ){
-              ClassTable mother_t = visitor_sym.classId_table.get(temp.mother);
-              Type = mother_t.recurse_lookup(id, visitor_sym.classId_table );
-              if (Type == null){
-                throw new Exception("Type error!");    
-              }else{
-                return Type;
-              }
-            }
-            throw new Exception("Type error!");
           }
         }
-      }
 
-      return Type;
+        return Type;
 
-    }else{
+    }else{ //In this case we return the name of the identifier.
       String id = n.f0.accept(this, argu);
       return id;
     }
 
-    //String id = n.f0.accept(this, argu);
-    //return id;
-
       
-   }
+  }
 
 
    /**
@@ -996,13 +1038,13 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     */
     public String visit(IntegerLiteral n, String argu) throws Exception {
       return "int";
-   }
+    }
 
    /**
     * f0 -> "this"
     */
     public String visit(ThisExpression n, String argu) throws Exception {
-      return curr_class;
+      return curr_class; //In a ThisExpression we return the current class we're on.
    }
 
       /**
@@ -1039,9 +1081,10 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f0.accept(this, argu);
       n.f1.accept(this, argu);
       n.f2.accept(this, argu);
+
       String index = n.f3.accept(this, argu);
 
-      if (index != "int"){
+      if (index != "int"){ //The index in an array must be of int type.
         throw new Exception("Type error!");
       }
 
@@ -1063,7 +1106,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       n.f2.accept(this, argu);
       String index = n.f3.accept(this, argu);
 
-      if (index != "int"){
+      if (index != "int"){ //The index in an array must be of int type.
         throw new Exception("Type error!");
       }
 
@@ -1081,12 +1124,15 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     public String visit(AllocationExpression n, String argu) throws Exception{
       String _ret=null;
       n.f0.accept(this, argu);
-      this.in_assign = false; //NOT RESET TO TRUE?
+      
+      this.give_type = false; 
+
       String Type = n.f1.accept(this, argu);
-      if (!(this.visitor_sym.classId_table.containsKey(Type)) ){
+      if (!(this.visitor_sym.classId_table.containsKey(Type)) ){ //Check if the Type in the classId table.
         throw new Exception("Type error!");
       }
-      this.in_assign = true; //NOT RESET TO TRUE?
+      this.give_type = true; 
+
       n.f2.accept(this, argu);
       n.f3.accept(this, argu);
       return Type;
