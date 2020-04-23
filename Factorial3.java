@@ -82,7 +82,7 @@ class Fac2 extends Fac{
 
 
 class A{
- 
+int d; 
  public int foo(int g){
 	return 0;
 }
@@ -90,18 +90,18 @@ class A{
 }
 
 class B extends A{
-
+int d;
 
 }
 
 class C extends B{
- 
-
+int d; 
+int g;
 
 }
 
 class D extends C{
-
+int d;
 public int foo(int k){
 	return 0;
 }

@@ -41,8 +41,10 @@ public class OffsetTable {
                 String last_type = null; //The last type of the fields.
 
                 int last_count = 0; //Used in case we're in a hierarchy.
+                String last_type_class = null;
 
                 for (String f_id : temp.field_table.keySet()) {
+                    
                     
                     //Getting the type of the field.
                     String Type = temp.field_table.get(f_id);
@@ -53,8 +55,23 @@ public class OffsetTable {
                         if(temp.mother == null){
                             System.out.println(id+"."+f_id+" : 0" );
                         }else{
+                            
                             last_count = visitor_sym.find_field_table(id);
+                            last_type_class = visitor_sym.find_last_type(id);
+
+                            //Adding up the necessary offsets.
+                            if(last_type_class == "int" ){
+                                last_count = last_count + 4;
+                            }
+                            if(last_type_class == "boolean" ){
+                                last_count = last_count + 1;
+                            }
+                            if(last_type_class == "pointer"){
+                                last_count = last_count + 8;
+                            }
+                            
                             System.out.println(id+"."+f_id+" : "+last_count );
+                            ot_sum = last_count;
                         }
                     }else{ //If it's not the first item we will go to every previous field and create the sum.
                         
@@ -99,19 +116,23 @@ public class OffsetTable {
                     counter++;
                 }
 
+                String last_type_s = null;
+
                 //Adding up the offset of the last type. It may be used if there is a child class that inherits from our current class.
                 if(last_type == "int" ){
-                    ot_sum = ot_sum + 4;
+                    last_type_s = "int";
                 }
                 if(last_type == "boolean" ){
-                    ot_sum = ot_sum + 1;
+                    last_type_s = "boolean";
                 }
                 if(last_type == "boolean[]" || last_type == "int[]" || visitor_sym.classId_table.containsKey(last_type) ){
-                    ot_sum = ot_sum + 8;
+                    last_type_s = "pointer";
                 }
 
                 //Storing the field offset sum in the Class Table.
                 temp.ot_sum = ot_sum;
+                temp.last_type = last_type_s;
+
                 
             }
 
@@ -138,9 +159,19 @@ public class OffsetTable {
                         if(temp.mother == null){
                             System.out.println(id+"."+m_id+" : 0" );
                         }else{
-                            int full_sum = 0;
-                            last_count = visitor_sym.find_methodId_table(id,full_sum);
+                            
+                            last_count = visitor_sym.find_methodId_table(id);
+                            if (last_count == -1){
+                                last_count = 0;
+                            }else{
+                                last_count = last_count + 8;
+                            }
+
+                            
+
                             System.out.println(id+"."+m_id+" : "+last_count );
+
+                            mt_sum = last_count;
                         }
                     }else{ //If it's not the first item we will go to every previous field and create the sum.
                         int w_counter = counter;
@@ -171,7 +202,7 @@ public class OffsetTable {
                 }
 
                 //Adding up the offset of the last method. It may be used if there is a child class that inherits from our current class.
-                mt_sum = mt_sum + 8;
+                //mt_sum = ;
 
                 //Storing the method offset sum in the Class Table.
                 temp.mt_sum = mt_sum;

@@ -57,6 +57,7 @@ class MethodTable{
 class ClassTable{
 
   public String mother; //Mother is the name of the class whom this class extends from. If the class is not a child, this string is null.
+  public String last_type;
   public int ot_sum; //ot_sum contains the sum of the offsets from the fields. Its usage will be explained later on. 
   public int mt_sum; //Same thing as ot_sum but for the methods.
   public LinkedHashMap<String, String> field_table ;
@@ -176,6 +177,24 @@ public class SymbolTable {
 
   }
 
+
+  public String find_last_type(String id){
+
+    ClassTable current = this.get(id);
+    ClassTable mom_table = this.get(current.mother);
+
+    if (current.mother == null && current.field_table == null ){
+      return null;
+    }
+
+    if (mom_table.field_table == null){
+      return find_last_type(current.mother); 
+    }else{
+      return mom_table.last_type;
+    }
+
+  }
+
   //Find_field_table will search throughout the class hierarchy to get the field table offset sum of the first mother class that has a field table.
   public int find_field_table(String id){
 
@@ -196,22 +215,23 @@ public class SymbolTable {
 
   //Find_methodId_table will search throughout the class hierarchy to get the methodId table offset sum of the first mother class that has a methodId table.
   //In the case of methods, the sum of all previous sums is returned.
-  public int find_methodId_table(String id, int full_sum){
+  public int find_methodId_table(String id){
 
     ClassTable current = this.get(id);
     ClassTable mom_table = this.get(current.mother);
 
-    
 
-    if (current.mother == null ){
-      return full_sum;
+    if (current.mother == null && current.methodId_table == null ){
+      return 0;
     }
 
-    if (mom_table.methodId_table != null){
-      full_sum = full_sum + mom_table.mt_sum;
-      return find_methodId_table(current.mother,full_sum); 
+    if (mom_table.methodId_table == null){
+      return find_methodId_table(current.mother); 
     }else{
-      return find_methodId_table(current.mother,full_sum); 
+      if(mom_table.methodId_table.containsKey("main")){
+        return -1;
+      }
+      return mom_table.mt_sum;
     }
   
   }
