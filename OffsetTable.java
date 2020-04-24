@@ -3,7 +3,7 @@ import syntaxtree.*;
 import java.util.*;
 
 
-//Offset Table will create the offset of a semantically correct Minijava program.
+//Offset Table will create the offsets of a semantically correct Minijava program.
 public class OffsetTable {
 
     public SymbolTable visitor_sym;
@@ -41,7 +41,7 @@ public class OffsetTable {
                 String last_type = null; //The last type of the fields.
 
                 int last_count = 0; //Used in case we're in a hierarchy.
-                String last_type_class = null;
+                String last_type_class = null; //The last type from a field table in the mother class.
 
                 for (String f_id : temp.field_table.keySet()) {
                     
@@ -56,10 +56,13 @@ public class OffsetTable {
                             System.out.println(id+"."+f_id+" : 0" );
                         }else{
                             
+                            //Getting the last offset sum from the mother class.
                             last_count = visitor_sym.find_field_table(id);
+
+                            //Getting the last type from the mother class.
                             last_type_class = visitor_sym.find_last_type(id);
 
-                            //Adding up the necessary offsets.
+                            //The first offset in a child class is going to be added up from the last type of its mother.
                             if(last_type_class == "int" ){
                                 last_count = last_count + 4;
                             }
@@ -71,6 +74,8 @@ public class OffsetTable {
                             }
                             
                             System.out.println(id+"."+f_id+" : "+last_count );
+
+                            //Used for the next child classes.
                             ot_sum = last_count;
                         }
                     }else{ //If it's not the first item we will go to every previous field and create the sum.
@@ -118,7 +123,7 @@ public class OffsetTable {
 
                 String last_type_s = null;
 
-                //Adding up the offset of the last type. It may be used if there is a child class that inherits from our current class.
+                //Storing the last type. It will be used if there is a child class that inherits from our current class.
                 if(last_type == "int" ){
                     last_type_s = "int";
                 }
@@ -129,7 +134,7 @@ public class OffsetTable {
                     last_type_s = "pointer";
                 }
 
-                //Storing the field offset sum in the Class Table.
+                //Storing the field offset sum and last type in the Class Table, in case they are needed by a child class.
                 temp.ot_sum = ot_sum;
                 temp.last_type = last_type_s;
 
@@ -160,17 +165,19 @@ public class OffsetTable {
                             System.out.println(id+"."+m_id+" : 0" );
                         }else{
                             
+                            //Getting the last offset sum from the mother class.
                             last_count = visitor_sym.find_methodId_table(id);
+
+                            //-1 is returned in case the mother class is the Main. We must not add the offsets of the main function. So -1 is used to skip it.
                             if (last_count == -1){
                                 last_count = 0;
-                            }else{
+                            }else{ //The first offset in a child class is going to be added up from the last method of its mother.
                                 last_count = last_count + 8;
                             }
 
-                            
-
                             System.out.println(id+"."+m_id+" : "+last_count );
 
+                            //Used for the next child classes.
                             mt_sum = last_count;
                         }
                     }else{ //If it's not the first item we will go to every previous field and create the sum.
@@ -200,9 +207,6 @@ public class OffsetTable {
                     }
                     counter++;
                 }
-
-                //Adding up the offset of the last method. It may be used if there is a child class that inherits from our current class.
-                //mt_sum = ;
 
                 //Storing the method offset sum in the Class Table.
                 temp.mt_sum = mt_sum;

@@ -5,7 +5,7 @@ import java.util.*;
 //The Second Visitor will perform type checks in our program.
 public class SecondVisitor extends GJDepthFirst<String, String>{
       
-    public SymbolTable visitor_sym;
+    public SymbolTable visitor_sym; //The SymbolTable of this Visitor.
     public String curr_class; //Curr_class will get the "scope" of the last class we're on.
     public String curr_meth; //Curr_class will get the "scope" of the last method we're on.
     public Stack counterStack; //counterStack will used to store some counters. Its usage will be explained in the MessageSend visit.
@@ -42,7 +42,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     String _ret=null;
     n.f0.accept(this, argu);
 
-
+    //Setting the scope of the Main class and main method using the curr_class and curr_meth fields.
     this.give_type = false;
     String main_class = n.f1.accept(this, argu);
     this.curr_class = main_class;
@@ -87,6 +87,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
     n.f0.accept(this, argu);
 
+    //Setting the scope of the current class we're on.
     this.give_type = false;
     String class_name = n.f1.accept(this, argu);
     this.curr_class = class_name;
@@ -114,6 +115,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
 
         n.f0.accept(this, argu);
 
+        //Setting the scope of the current class we're on.
         this.give_type = false;
         String class_name = n.f1.accept(this, argu);
         this.curr_class = class_name;
@@ -153,6 +155,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         this.give_type = false;
         String ret_type = n.f1.accept(this, argu);
 
+        //Setting the scope of the current method we're on.
         this.give_type = false;
         String meth_name = n.f2.accept(this, argu);
         this.curr_meth = meth_name;
@@ -250,7 +253,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         }  
       }else{ //If the expression type has a mother, we need to check if the left type is in the hierarchy.
         boolean child = visitor_sym.is_child(l_Type,r_Type);
-        if( l_Type != r_Type  && child == false ){ //If child is false, this means expr_type does not have ret_type as its mother.
+        if( l_Type != r_Type  && child == false ){ //If child is false, this means r_Type does not have l_Type as its mother.
           throw new Exception("Type error!");  
         }
       }
@@ -314,7 +317,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         throw new Exception("Type error!");
       }
 
-      if (right_Type == "int" ){ //Ints have to be stored in an int type.
+      if (right_Type == "int" ){ //Ints have to be stored in an int[] type.
         if(arr_type != "int[]"){
           throw new Exception("Type error!");
         }
@@ -701,7 +704,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       int curr_counter = (int) counterStack.peek(); //Getting the last counter.
 
 
-      String string = argu; //Splitting the combined strings.
+      String string = argu; //Splitting the combined string.
       String[] parts = string.split("-");
       String obj_type = parts[0]; 
       String meth_name = parts[1];
@@ -775,7 +778,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
     
       String Type = n.f1.accept(this, argu); //Getting the Type of the calling expression.
 
-      String string = argu;//Splitting the combined strings.
+      String string = argu;//Splitting the combined string.
       String[] parts = string.split("-");
       String obj_type = parts[0]; 
       String meth_name = parts[1]; 
@@ -878,6 +881,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
         //If not we check the field table of the class we're in. 
         //If not we also check the field table of the first mother we find (if the class is in hierarchy).
 
+        //Both parameter and local variable tables are null
         if ( tupe.y.param_table == null && tupe.y.local_table == null  ){
           if ( temp.field_table != null  ){
             if( temp.field_table.containsKey(id) ) {
@@ -909,6 +913,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
           }
         }
 
+        //Only parameter table is null. 
         if ( tupe.y.param_table == null && tupe.y.local_table != null  ){
           if ( tupe.y.local_table.containsKey(id)  ){
             Type = tupe.y.local_table.get(id);
@@ -945,7 +950,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
           }
         }
 
-
+        //Only local table is null. 
         if ( tupe.y.param_table != null && tupe.y.local_table == null  ){
           if ( tupe.y.param_table.containsKey(id)  ){
             Type = tupe.y.param_table.get(id);
@@ -982,7 +987,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
           }
         }
 
-
+        //Both parameter and local tables have at least one variable.
         if ( tupe.y.param_table != null && tupe.y.local_table != null  ){
           if ( tupe.y.param_table.containsKey(id)  ){
             Type = tupe.y.param_table.get(id);
@@ -1164,6 +1169,7 @@ public class SecondVisitor extends GJDepthFirst<String, String>{
       return Type;
    }
 
+   
   public String visit(NodeToken n, String argu) throws Exception { return n.toString(); }
 
 }

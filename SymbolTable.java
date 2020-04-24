@@ -3,61 +3,166 @@ import java.util.Iterator;
 
 //The SymbolTable.java file contains all the necessary structures for the implementation of our Symbol Table.
 
+//The Symbol Table class consists of a LinkedHashMap. Each key is the class id and its key the corresponding Class Table.
+public class SymbolTable {
 
-//Tuple class is used to store two variables together, it is needed for the methodId table which will be explained later on.
-class Tuple<X, Y> { 
-  public final X x; 
-  public final Y y; 
-  public Tuple(X x, Y y) { 
-    this.x = x; 
-    this.y = y; 
-  } 
-} 
 
-//The Method Table is used to store the parameters and local variables of a method (if any)
-class MethodTable{
+  LinkedHashMap<String, ClassTable> classId_table;
 
-  public LinkedHashMap<String, String> param_table ;
-  public LinkedHashMap<String, String> local_table ;
+  //Is_child will search throughout the class hierarchy to see if the "child" argument has f_mother as a mother class.
+  public boolean is_child(String f_mother, String child){
 
-  //GetKey function will return the key (of the parameter table) that corresponds to the "index" argument.
-  public String getKey(int index) {
+    ClassTable current = this.get(child);
 
-    Iterator<String> itr = param_table.keySet().iterator();
-    for (int i = 0; i < index; i++) {
-        itr.next();
-    }
-    return itr.next();
-  }
-
-  //p_insert adds a variable and its type to the parameter table.
-  public void p_insert(String id, String type){
-    if (param_table == null){
-      param_table = new LinkedHashMap<String, String>();
+    if (current.mother == null){
+      return false;
+    }else{
+      if (current.mother == f_mother){
+        return true;
+      }else{
+        return is_child(f_mother, current.mother);
+      }
     }
 
-    param_table.put(id, type);
   }
 
-  //l_insert adds a variable and its type to the local variables table.
-  public void l_insert(String id, String type){
+  //Find_last_type will search throughout the class hierarchy to get the last type of the first mother class that has a field table.
+  public String find_last_type(String id){
+
+    ClassTable current = this.get(id);
+    ClassTable mom_table = this.get(current.mother);
+
+    if (current.mother == null && current.field_table == null ){
+      return null;
+    }
+
+    if (mom_table.field_table == null){
+      return find_last_type(current.mother); 
+    }else{
+      return mom_table.last_type;
+    }
+
+  }
+
+  //Find_field_table will search throughout the class hierarchy to get the field table offset sum of the first mother class that has a field table.
+  public int find_field_table(String id){
+
+    ClassTable current = this.get(id);
+    ClassTable mom_table = this.get(current.mother);
+
+    if (current.mother == null && current.field_table == null ){
+      return 0;
+    }
+
+    if (mom_table.field_table == null){
+      return find_field_table(current.mother); 
+    }else{
+      return mom_table.ot_sum;
+    }
+  
+  }
+
+  //Find_methodId_table will search throughout the class hierarchy to get the methodId table offset sum of the first mother class that has a methodId table.
+  public int find_methodId_table(String id){
+
+    ClassTable current = this.get(id);
+    ClassTable mom_table = this.get(current.mother);
+
+
+    if (current.mother == null && current.methodId_table == null ){
+      return 0;
+    }
+
+    if (mom_table.methodId_table == null){
+      return find_methodId_table(current.mother); 
+    }else{
+      if(mom_table.methodId_table.containsKey("main")){
+        return -1;
+      }
+      return mom_table.mt_sum;
+    }
+  
+  }
+
+  //Mother_search will search throughout the class hierarchy to get the first mother that has the "id" argument.
+  public String mother_search(String mother, String id){
+
+    ClassTable current = this.get(mother);
+
+    if (current.mother == null){
+      return null;
+    }else{
+      boolean not_up = false;
+      ClassTable new_mother = this.get(current.mother);
+      if (new_mother.methodId_table != null){
+        if( new_mother.methodId_table.containsKey(id) ){
+            return current.mother;
+        }else{
+            not_up = true;
+        }
+      }
+
+      if( new_mother.methodId_table == null   ||  not_up == true  ){
+        return mother_search(current.mother,id);
+      }
+    }
+
+    return null;
+
+
+  }
+
+  //Adding a class to the classId table
+  public void add_class(String id){
     
-    if (local_table == null){
-      local_table = new LinkedHashMap<String, String>();
+    if (classId_table == null){
+      classId_table = new LinkedHashMap<String, ClassTable>();
     }
-
-
-    local_table.put(id, type);
+    classId_table.put(id, new ClassTable());
   }
 
+  //Getting the last ClassTable of the classId table
+  public ClassTable get_last(){
 
+    String lKeyLast = null ;
+    for(String key : classId_table.keySet()){
+      lKeyLast = key;
+    }
+
+    ClassTable temp = classId_table.get(lKeyLast);
+
+    return temp;
+
+  }
+
+  //Getting the last class id of the classId table
+  public String get_last_key(){
+
+    String lKeyLast = null ;
+    for(String key : classId_table.keySet()){
+      lKeyLast = key;
+    }
+
+    return lKeyLast;
+
+  }
+
+  //Getting the ClassTable of the "id" argument.
+  public ClassTable get(String id){
+
+    ClassTable temp = classId_table.get(id);
+    return temp;
+  }
+
+  
 }
+
 
 //The ClassTable will contain all the fields and method names of a class, as well as some additional information.
 class ClassTable{
 
   public String mother; //Mother is the name of the class whom this class extends from. If the class is not a child, this string is null.
-  public String last_type;
+  public String last_type; //Last type in the field table. It is used for the creation of the Offset Table.
   public int ot_sum; //ot_sum contains the sum of the offsets from the fields. Its usage will be explained later on. 
   public int mt_sum; //Same thing as ot_sum but for the methods.
   public LinkedHashMap<String, String> field_table ;
@@ -154,158 +259,55 @@ class ClassTable{
 
 }
 
-//The Symbol Table consists of a HashMap. Each key is the class id and its key the corresponding Class Table.
-public class SymbolTable {
+//Tuple class is used to store two variables together, it is needed for the methodId table which will be explained later on.
+class Tuple<X, Y> { 
+  public final X x; 
+  public final Y y; 
+  public Tuple(X x, Y y) { 
+    this.x = x; 
+    this.y = y; 
+  } 
+} 
 
+//The Method Table is used to store the parameters and local variables of a method (if any)
+class MethodTable{
 
-  LinkedHashMap<String, ClassTable> classId_table;
+  public LinkedHashMap<String, String> param_table ;
+  public LinkedHashMap<String, String> local_table ;
 
-  //Is_child will search throughout the class hierarchy to see if the "child" argument has f_mother as a mother class.
-  public boolean is_child(String f_mother, String child){
+  //GetKey function will return the key (of the parameter table) that corresponds to the "index" argument.
+  public String getKey(int index) {
 
-    ClassTable current = this.get(child);
-
-    if (current.mother == null){
-      return false;
-    }else{
-      if (current.mother == f_mother){
-        return true;
-      }else{
-        return is_child(f_mother, current.mother);
-      }
+    Iterator<String> itr = param_table.keySet().iterator();
+    for (int i = 0; i < index; i++) {
+        itr.next();
     }
-
+    return itr.next();
   }
 
-
-  public String find_last_type(String id){
-
-    ClassTable current = this.get(id);
-    ClassTable mom_table = this.get(current.mother);
-
-    if (current.mother == null && current.field_table == null ){
-      return null;
+  //p_insert adds a variable and its type to the parameter table.
+  public void p_insert(String id, String type){
+    if (param_table == null){
+      param_table = new LinkedHashMap<String, String>();
     }
 
-    if (mom_table.field_table == null){
-      return find_last_type(current.mother); 
-    }else{
-      return mom_table.last_type;
-    }
-
+    param_table.put(id, type);
   }
 
-  //Find_field_table will search throughout the class hierarchy to get the field table offset sum of the first mother class that has a field table.
-  public int find_field_table(String id){
-
-    ClassTable current = this.get(id);
-    ClassTable mom_table = this.get(current.mother);
-
-    if (current.mother == null && current.field_table == null ){
-      return 0;
-    }
-
-    if (mom_table.field_table == null){
-      return find_field_table(current.mother); 
-    }else{
-      return mom_table.ot_sum;
-    }
-  
-  }
-
-  //Find_methodId_table will search throughout the class hierarchy to get the methodId table offset sum of the first mother class that has a methodId table.
-  //In the case of methods, the sum of all previous sums is returned.
-  public int find_methodId_table(String id){
-
-    ClassTable current = this.get(id);
-    ClassTable mom_table = this.get(current.mother);
-
-
-    if (current.mother == null && current.methodId_table == null ){
-      return 0;
-    }
-
-    if (mom_table.methodId_table == null){
-      return find_methodId_table(current.mother); 
-    }else{
-      if(mom_table.methodId_table.containsKey("main")){
-        return -1;
-      }
-      return mom_table.mt_sum;
-    }
-  
-  }
-
-  //Mother_search will search throughout the class hierarchy to get the first mother that has the "id" argument.
-  public String mother_search(String mother, String id){
-
-    ClassTable current = this.get(mother);
-
-    if (current.mother == null){
-      return null;
-    }else{
-      boolean not_up = false;
-      ClassTable new_mother = this.get(current.mother);
-      if (new_mother.methodId_table != null){
-        if( new_mother.methodId_table.containsKey(id) ){
-            return current.mother;
-        }else{
-            not_up = true;
-        }
-      }
-
-      if( new_mother.methodId_table == null   ||  not_up == true  ){
-        return mother_search(current.mother,id);
-      }
-    }
-
-    return null;
-
-
-  }
-
-  //Adding a class to the classId table
-  public void add_class(String id){
+  //l_insert adds a variable and its type to the local variables table.
+  public void l_insert(String id, String type){
     
-    if (classId_table == null){
-      classId_table = new LinkedHashMap<String, ClassTable>();
-    }
-    classId_table.put(id, new ClassTable());
-  }
-
-  //Getting the last ClassTable of the classId table
-  public ClassTable get_last(){
-
-    String lKeyLast = null ;
-    for(String key : classId_table.keySet()){
-      lKeyLast = key;
+    if (local_table == null){
+      local_table = new LinkedHashMap<String, String>();
     }
 
-    ClassTable temp = classId_table.get(lKeyLast);
 
-    return temp;
-
+    local_table.put(id, type);
   }
 
-  //Getting the last class id of the classId table
-  public String get_last_key(){
-
-    String lKeyLast = null ;
-    for(String key : classId_table.keySet()){
-      lKeyLast = key;
-    }
-
-    return lKeyLast;
-
-  }
-
-  //Getting the ClassTable of the "id" argument.
-  public ClassTable get(String id){
-
-    ClassTable temp = classId_table.get(id);
-    return temp;
-  }
-
-  
 
 }
+
+
+
+

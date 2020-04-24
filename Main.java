@@ -48,6 +48,7 @@ public class Main {
                 }
             
                 //Checking if the symbol table has a object from a class that was never declared. If so, we stop the semantic check.
+                //This is the only check performed in the main function. All other checks are in the Visitor files.
                 for (int counter = 0; counter < eval.idList.size(); counter++) { 		      
                     String id_check = eval.idList.get(counter);
                     if( !(eval.visitor_sym.classId_table.containsKey(id_check)) ){
@@ -115,7 +116,6 @@ public class Main {
 
 
     }
-
 
 
 }
